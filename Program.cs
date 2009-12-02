@@ -28,14 +28,14 @@ using System.Text;
 
 namespace Obfuscar
 {
-	class Program
+	public class Program
 	{
 		static void ShowHelp( )
 		{
 			Console.WriteLine( "Usage:  obfuscar [projectfile]" );
 		}
 
-		static int Main( string[] args )
+		public static int Main( string[] args )
 		{
 			if ( args.Length < 1 )
 			{
