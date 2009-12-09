@@ -45,47 +45,53 @@ namespace Obfuscar
 
 			int start = Environment.TickCount;
 
-			try {
-				Console.Write ("Loading project...");
-				Obfuscator obfuscator = new Obfuscator (args [0]);
-				Console.WriteLine ("Done.");
+			try
+			{
+				Console.Write( "Loading project..." );
+				Obfuscator obfuscator = new Obfuscator( args[0] );
+				Console.WriteLine( "Done." );
 
-				Console.Write ("Resolving customattributes");
-				obfuscator.ResolveCustomAttributes ();
+				Console.Write( "Renaming:  fields..." );
+				obfuscator.RenameFields( );
 
-				Console.Write ("Renaming:  fields...");
-				obfuscator.RenameFields ();
+				Console.Write( "parameters..." );
+				obfuscator.RenameParams( );
 
-				Console.Write ("parameters...");
-				obfuscator.RenameParams ();
+				Console.Write( "properties..." );
+				obfuscator.RenameProperties( );
 
-				Console.Write ("properties...");
-				obfuscator.RenameProperties ();
+				Console.Write( "events..." );
+				obfuscator.RenameEvents( );
 
-				Console.Write ("events...");
-				obfuscator.RenameEvents ();
+				Console.Write( "methods..." );
+				obfuscator.RenameMethods( );
 
-				Console.Write ("methods...");
-				obfuscator.RenameMethods ();
+				Console.Write( "types..." );
+				obfuscator.RenameTypes( );
 
-				Console.Write ("types...");
-				obfuscator.RenameTypes ();
-				Console.WriteLine ("Done.");
+				if (obfuscator.Project.Settings.HideStrings)
+				{
+					Console.WriteLine("hiding strings...");
+					obfuscator.HideStrings();
+				}
 
-				Console.Write ("Saving assemblies...");
-				obfuscator.SaveAssemblies ();
-				Console.WriteLine ("Done.");
+				Console.WriteLine( "Done." );
 
-				Console.Write ("Writing log file...");
-				obfuscator.SaveMapping ();
-				Console.WriteLine ("Done.");
+				Console.Write( "Saving assemblies..." );
+				obfuscator.SaveAssemblies( );
+				Console.WriteLine( "Done." );
 
-				Console.WriteLine ("Completed, {0:f2} secs.", (Environment.TickCount - start) / 1000.0);
-			}			
-			catch(ApplicationException e) {
-				Console.WriteLine ();
-				Console.Error.WriteLine ("An error occurred during processing:");
-				Console.Error.WriteLine (e.Message);
+				Console.Write( "Writing log file..." );
+				obfuscator.SaveMapping( );
+				Console.WriteLine( "Done." );
+
+				Console.WriteLine( "Completed, {0:f2} secs.", ( Environment.TickCount - start ) / 1000.0 );
+			}
+			catch ( ApplicationException e )
+			{
+				Console.WriteLine( );
+				Console.Error.WriteLine( "An error occurred during processing:" );
+				Console.Error.WriteLine( e.Message );
 				return 1;
 			}
 			catch(Exception e) {

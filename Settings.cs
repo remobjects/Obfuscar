@@ -40,6 +40,7 @@ namespace Obfuscar
 		bool reuseNames;
         bool useUnicodeNames;
 		bool xmlMapping;
+		bool hideStrings;
 
 		public Settings( Variables vars )
 		{
@@ -52,6 +53,7 @@ namespace Obfuscar
 			renameEvents = XmlConvert.ToBoolean( vars.GetValue( "RenameEvents", "true" ) );
 			reuseNames = XmlConvert.ToBoolean( vars.GetValue( "ReuseNames", "true" ) );
             useUnicodeNames = XmlConvert.ToBoolean(vars.GetValue("UseUnicodeNames", "false"));
+			hideStrings = XmlConvert.ToBoolean(vars.GetValue("HideStrings", "true"));
 
 			xmlMapping = XmlConvert.ToBoolean( vars.GetValue( "XmlMapping", "false" ) );
 		}
@@ -91,12 +93,17 @@ namespace Obfuscar
 			get { return reuseNames; }
 		}
 
+		public bool HideStrings
+		{
+			get { return hideStrings; }
+		}
+
 		public bool XmlMapping
 		{
 			get { return xmlMapping; }
 		}
 
-        public bool UseUnicodeNames
+  		public bool UseUnicodeNames
         {
             get { return useUnicodeNames; }
         }

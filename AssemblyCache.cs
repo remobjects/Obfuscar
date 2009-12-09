@@ -110,22 +110,22 @@ namespace Obfuscar
 			if(typeDef == null) {
 				AssemblyNameReference name = type.Scope as AssemblyNameReference;
                 if (name != null)
-                {
-                    // try to self resolve, fall back to default resolver
-                    AssemblyDefinition assmDef = null;
+				{
+					// try to self resolve, fall back to default resolver
+					AssemblyDefinition assmDef = null;
                     assmDef = SelfResolve(name);
                     if (assmDef == null)
-                    {
-                        try
-                        {
+					{
+						try
+						{
                             assmDef = resolver.Resolve(name);
-                            cache[name.FullName] = assmDef;
-                        }
+							cache[name.FullName] = assmDef;
+						}
                         catch (FileNotFoundException)
-                        {
+						{
                             throw new ApplicationException("Unable to resolve dependency:  " + name.Name);
-                        }
-                    }
+						}
+					}
 
                     string fullName = null;
                     while (type.IsNested)
@@ -141,13 +141,13 @@ namespace Obfuscar
                     else
                         fullName = type.Namespace + "." + type.Name + "/" + fullName;
                     typeDef = assmDef.MainModule.Types[fullName];
-                }
-                else 
-                {
-                    GenericInstanceType gi = type as GenericInstanceType;
-                    if (gi != null)
-                        return GetTypeDefinition(gi.ElementType);
-                }
+				}
+				else
+				{
+					GenericInstanceType gi = type as GenericInstanceType;
+					if (gi != null)
+						return GetTypeDefinition(gi.ElementType);
+				}
                 
 			}
 

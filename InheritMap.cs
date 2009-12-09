@@ -34,12 +34,12 @@ namespace Obfuscar
 {
 	class MethodGroup
 	{
-		private readonly HashSet<MethodKey> methods = new HashSet<MethodKey>( );
+		private readonly C5.HashSet<MethodKey> methods = new C5.HashSet<MethodKey>( );
 
 		private string name = null;
 		private bool external = false;
 
-		public HashSet<MethodKey> Methods
+		public C5.HashSet<MethodKey> Methods
 		{
 			get { return methods; }
 		}
@@ -125,7 +125,7 @@ namespace Obfuscar
 							else
 							{
 								group = new MethodGroup( );
-                                
+
 								group = AddToGroup (group, methods [i]);
 								group = AddToGroup (group, methods [j]);
 							}
@@ -152,7 +152,7 @@ namespace Obfuscar
 			return methods[i].Equals( (NameParamSig) methods[j] );
 		}
 
-		void GetBaseTypes( HashSet<TypeKey> baseTypes, TypeDefinition type )
+		void GetBaseTypes( C5.HashSet<TypeKey> baseTypes, TypeDefinition type )
 		{
 			// check the interfaces
 			foreach ( TypeReference ifaceRef in type.Interfaces )
@@ -176,11 +176,9 @@ namespace Obfuscar
 
 		TypeKey[] GetBaseTypes( TypeDefinition type )
 		{
-			HashSet<TypeKey> baseTypes = new HashSet<TypeKey>( );
+			C5.HashSet<TypeKey> baseTypes = new C5.HashSet<TypeKey>( );
 			GetBaseTypes( baseTypes, type );
-            TypeKey[] res = new TypeKey[baseTypes.Count];
-            baseTypes.CopyTo(res);
-            return res;
+			return baseTypes.ToArray( );
 		}
 
 		void GetVirtualMethods( AssemblyCache cache, C5.TreeSet<MethodKey> methods, TypeDefinition type )
@@ -247,16 +245,16 @@ namespace Obfuscar
                 }
                 else
                 {
-                    group2.Name = group2.Name ?? group.Name;
-                    group2.External = group2.External | group.External;
+				group2.Name = group2.Name ?? group.Name;
+				group2.External = group2.External | group.External;
                     foreach (MethodKey mk in group.Methods)
                     {
                         methodGroups[mk] = group2;
                         group2.Methods.Add(mk);
 
-                    }
-                    return group2;
-                }
+				}
+				return group2;
+			}
 			}
 			methodGroups[methodKey] = group;
 

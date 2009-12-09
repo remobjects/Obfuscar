@@ -63,7 +63,7 @@ namespace Obfuscar
 			if ( key != null )
 				return method == key;
 
-			if ( Helper.CompareOptionalRegex(method.TypeKey.Fullname, type) )
+			if ( Helper.CompareOptionalRegex(method.TypeKey.Fullname, type) && CheckMethodVisibility(this.attrib, method.MethodAttributes))
 			{
 				if ( name != null )
 					return Helper.CompareOptionalRegex(method.Name, name);
@@ -72,6 +72,31 @@ namespace Obfuscar
 			}
 
 			return false;
+		}
+
+		static public bool CheckMethodVisibility(string attribute, MethodAttributes methodAttributes)
+		{
+			if (!string.IsNullOrEmpty(attribute))
+			{
+				MethodAttributes accessmask = (methodAttributes & MethodAttributes.MemberAccessMask);
+				if (string.Equals(attribute, "public", StringComparison.CurrentCultureIgnoreCase))
+				{
+					if (accessmask == MethodAttributes.Public)
+						return true;
+				}
+				else if (string.Equals(attribute, "protected", StringComparison.CurrentCultureIgnoreCase))
+				{
+					if (accessmask == MethodAttributes.Public || accessmask == MethodAttributes.Family)
+						return true;
+				}
+				else
+					throw new ApplicationException(string.Format("'{0}' is not valid for the 'attrib' value of skip elements. Only 'public' and 'protected' are supported by now.", attribute));
+				
+				// attrib value given, but the member is not public/protected. We signal that the Skip* rule should be ignored. The member is obfuscated in any case.
+				return false;
+			}
+			else
+				return true; // No attrib value given: The Skip* rule is processed normally.
 		}
 	}
 }
