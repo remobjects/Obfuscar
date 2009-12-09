@@ -423,3 +423,9 @@ namespace Obfuscar
 		}
 	}
 }
+
+/*
+
+[assembly: AssemblyVersion("0.0.0.0")]
+
+*/
