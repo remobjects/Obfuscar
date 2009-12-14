@@ -34,7 +34,7 @@ using Mono.Cecil.Cil;
 
 namespace Obfuscar
 {
-	class AssemblyInfo
+	public class AssemblyInfo
 	{
 		private readonly Project project;
 
@@ -73,7 +73,7 @@ namespace Obfuscar
 				return false;
 		}
 
-		public static AssemblyInfo FromXml( Project project, XmlReader reader, Variables vars )
+		internal static AssemblyInfo FromXml( Project project, XmlReader reader, Variables vars )
 		{
 			Debug.Assert( reader.NodeType == XmlNodeType.Element && reader.Name == "Module" );
 
@@ -327,7 +327,7 @@ namespace Obfuscar
 			get { return referencedBy; }
 		}
 
-		public void ForceSkip( MethodKey method )
+		internal void ForceSkip( MethodKey method )
 		{
 			skipMethods.Add( new MethodTester( method ) );
 		}
@@ -337,7 +337,7 @@ namespace Obfuscar
 			return skipNamespaces.IsMatch( ns );
 		}
 
-		public bool ShouldSkip( TypeKey type, TypeSkipFlags flag )
+        internal bool ShouldSkip(TypeKey type, TypeSkipFlags flag)
 		{
 			if (ShouldSkip(type.Namespace))
 				return true;
@@ -351,7 +351,7 @@ namespace Obfuscar
 			return false;
 		}
 
-		public bool ShouldSkip( TypeKey type )
+        internal bool ShouldSkip(TypeKey type)
 		{
 			if (ShouldSkip(type.Namespace))
 				return true;
@@ -359,7 +359,7 @@ namespace Obfuscar
 			return skipTypes.IsMatch( type );
 		}
 
-		public bool ShouldSkip( MethodKey method )
+        internal bool ShouldSkip(MethodKey method)
 		{
 			if (ShouldSkip(method.TypeKey, TypeSkipFlags.SkipMethod))
 				return true;
@@ -367,7 +367,7 @@ namespace Obfuscar
 			return skipMethods.IsMatch( method );
 		}
 
-		public bool ShouldSkipStringHiding(MethodKey method)
+        internal bool ShouldSkipStringHiding(MethodKey method)
 		{
 			if (ShouldSkip(method.TypeKey, TypeSkipFlags.SkipStringHiding))
 				return true;
@@ -375,7 +375,7 @@ namespace Obfuscar
 			return skipStringHiding.IsMatch(method);
 		}
 
-		public bool ShouldSkip( FieldKey field )
+        internal bool ShouldSkip(FieldKey field)
 		{
 			if (ShouldSkip(field.TypeKey, TypeSkipFlags.SkipField))
 				return true;
@@ -383,7 +383,7 @@ namespace Obfuscar
 			return skipFields.IsMatch( field );
 		}
 
-		public bool ShouldSkip( PropertyKey prop )
+        internal bool ShouldSkip(PropertyKey prop)
 		{
 			if (ShouldSkip(prop.TypeKey, TypeSkipFlags.SkipProperty))
 				return true;
@@ -391,7 +391,7 @@ namespace Obfuscar
 			return skipProperties.IsMatch( prop );
 		}
 
-		public bool ShouldSkip( EventKey evt )
+        internal bool ShouldSkip(EventKey evt)
 		{
 			if (ShouldSkip(evt.TypeKey, TypeSkipFlags.SkipEvent))
 				return true;

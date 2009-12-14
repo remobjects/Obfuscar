@@ -37,7 +37,7 @@ namespace Obfuscar
 {
 	public class Obfuscator
 	{
-		Project project;
+		internal Project project;
 
 		ObfuscationMap map = new ObfuscationMap( );
 
@@ -160,7 +160,7 @@ namespace Obfuscar
 		/// <summary>
 		/// Returns the obfuscation map for the project.
 		/// </summary>
-		public ObfuscationMap Mapping
+		ObfuscationMap Mapping
 		{
 			get { return map; }
 		}

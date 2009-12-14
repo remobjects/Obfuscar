@@ -36,7 +36,7 @@ using System.Security.Cryptography;
 
 namespace Obfuscar
 {
-	class Project : IEnumerable<AssemblyInfo>
+	public class Project : IEnumerable<AssemblyInfo>
 	{
 		private readonly List<AssemblyInfo> assemblyList = new List<AssemblyInfo>( );
 		private readonly Dictionary<string, AssemblyInfo> assemblyMap = new Dictionary<string, AssemblyInfo>( );
@@ -136,7 +136,7 @@ namespace Obfuscar
 			}
 		}
 
-		public InheritMap InheritMap
+		internal InheritMap InheritMap
 		{
 			get { return inheritMap; }
 		}
@@ -199,7 +199,7 @@ namespace Obfuscar
 		/// <summary>
 		/// Returns whether the project contains a given type.
 		/// </summary>
-		public bool Contains( TypeKey type )
+		internal bool Contains( TypeKey type )
 		{
 			return assemblyMap.ContainsKey( type.Scope );
 		}

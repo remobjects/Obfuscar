@@ -29,7 +29,7 @@ using System.Xml;
 
 namespace Obfuscar
 {
-	class Settings
+	public class Settings
 	{
 		string inPath;
 		string outPath;
@@ -42,7 +42,7 @@ namespace Obfuscar
 		bool xmlMapping;
 		bool hideStrings;
 
-		public Settings( Variables vars )
+		internal Settings( Variables vars )
 		{
 			inPath = vars.GetValue( "InPath", "." );
 			outPath = vars.GetValue( "OutPath", "." );
