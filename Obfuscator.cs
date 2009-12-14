@@ -35,7 +35,7 @@ using Mono.Security;
 
 namespace Obfuscar
 {
-	class Obfuscator
+	public class Obfuscator
 	{
 		Project project;
 
