@@ -93,7 +93,12 @@ namespace Obfuscar
 			return settings;
 		}
 
-		public Project Project { get { return project; } }
+		internal Project Project { get { return project; } }
+
+        public bool ShouldHideStrings()
+        {
+            return Project.Settings.HideStrings;
+        }
 
 		void LoadFromReader( XmlReader reader )
 		{
