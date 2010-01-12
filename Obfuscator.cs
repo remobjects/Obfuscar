@@ -342,10 +342,11 @@ namespace Obfuscar
 		/// </summary>
 		public void RenameTypes( )
 		{
-			Dictionary<string, string> typerenamemap = new Dictionary<string, string>(); // For patching the parameters of typeof(xx) attribute constructors
+			//Dictionary<string, string> typerenamemap = new Dictionary<string, string>(); // For patching the parameters of typeof(xx) attribute constructors
 
 			foreach ( AssemblyInfo info in project )
 			{
+                Dictionary<string, string> typerenamemap = new Dictionary<string, string>(); // For patching the parameters of typeof(xx) attribute constructors
 				AssemblyDefinition library = info.Definition;
 
 				// make a list of the resources that can be renamed
@@ -478,9 +479,11 @@ namespace Obfuscar
 
 				foreach ( Resource res in resources )
 					map.AddResource( res.Name, ObfuscationStatus.Skipped, "no clear new name" );
+
+                PatchCustomAttributes(typerenamemap, info);
 			}
 
-			PatchCustomAttributes(typerenamemap);
+			//PatchCustomAttributes(typerenamemap);
 		}
 
 		void RenameType( AssemblyInfo info, TypeDefinition type, TypeKey oldTypeKey, TypeKey newTypeKey, TypeKey unrenamedTypeKey )
@@ -516,11 +519,12 @@ namespace Obfuscar
 			map.UpdateType( unrenamedTypeKey, ObfuscationStatus.Renamed, string.Format("[{0}]{1}", newTypeKey.Scope, type.ToString( )) );
 		}
 
-		void PatchCustomAttributes(Dictionary<string, string> typeRenameMap)
+		void PatchCustomAttributes(Dictionary<string, string> typeRenameMap, AssemblyInfo aAssemblyInfo)
 		{
-			foreach (AssemblyInfo info in project)
-			{
-				AssemblyDefinition library = info.Definition;
+			//foreach (AssemblyInfo info in project)
+			//{
+				//AssemblyDefinition library = info.Definition;
+                AssemblyDefinition library = aAssemblyInfo.Definition;
 
 				foreach (TypeDefinition type in library.MainModule.Types)
 				{
@@ -534,7 +538,7 @@ namespace Obfuscar
 					foreach (EventDefinition eventdefinition in type.Events)
 						PatchCustomAttributeCollection(eventdefinition.CustomAttributes, typeRenameMap);
 				}
-			}
+			//}
 		}
 
 		void PatchCustomAttributeCollection(CustomAttributeCollection customAttributes, IDictionary<string, string> typeRenameMap)
