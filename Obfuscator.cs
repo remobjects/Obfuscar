@@ -545,6 +545,7 @@ namespace Obfuscar
 		{
 			foreach (CustomAttribute customattribute in customAttributes)
 			{
+                customattribute.Resolve();
 				for (int i = 0; i < customattribute.Constructor.Parameters.Count; i++)
 				{
 					ParameterDefinition parameterdefinition = customattribute.Constructor.Parameters[i];
