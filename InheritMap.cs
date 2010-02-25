@@ -94,6 +94,7 @@ namespace Obfuscar
 
 			foreach ( AssemblyInfo info in project )
 			{
+                info.Definition.Resolver = cache;
 				foreach ( TypeDefinition type in info.Definition.MainModule.Types )
 				{
 					if ( type.FullName == "<Module>" )

@@ -31,7 +31,7 @@ using Mono.Cecil;
 
 namespace Obfuscar
 {
-	class AssemblyCache
+	class AssemblyCache : IAssemblyResolver
 	{
 		private readonly Project project;
 
@@ -153,5 +153,21 @@ namespace Obfuscar
 
 			return typeDef;
 		}
-	}
+
+        #region IAssemblyResolver Members
+
+        public AssemblyDefinition Resolve(AssemblyNameReference name)
+        {
+            return SelfResolve(name);
+        }
+
+        public AssemblyDefinition Resolve(string fullName)
+        {
+            AssemblyDefinition assmDef = null;
+            cache.TryGetValue (fullName, out assmDef);
+            return assmDef;
+        }
+
+        #endregion
+    }
 }
