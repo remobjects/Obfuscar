@@ -207,7 +207,7 @@ namespace Obfuscar
 							} else
 
 							// skip filtered fields
-							if ( info.ShouldSkip( fieldKey ) )
+                                if (info.ShouldSkip(fieldKey) || !ShouldObfuscate(field, type))
 							{
 								map.UpdateField( fieldKey, ObfuscationStatus.Skipped, "filtered" );
 								nameGroup.Add( fieldKey.Name );
