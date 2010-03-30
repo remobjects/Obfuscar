@@ -1172,24 +1172,24 @@ namespace Obfuscar
 				List<byte> databytes = new List<byte>( );
 
 				// Add struct for constant byte array data
-				TypeDefinition structType = new TypeDefinition( "\0", "", TypeAttributes.ExplicitLayout | TypeAttributes.AnsiClass | TypeAttributes.Sealed | TypeAttributes.NestedPrivate, systemValueTypeTypeReference );
+                TypeDefinition structType = new TypeDefinition(NameMaker.UniqueTypeName(++uniqueTypeNameIndex), "", TypeAttributes.ExplicitLayout | TypeAttributes.AnsiClass | TypeAttributes.Sealed | TypeAttributes.NestedPrivate, systemValueTypeTypeReference);
 				structType.PackingSize = 1;
 				newtype.NestedTypes.Add( structType );
 
 				// Add field with constant string data
-				FieldDefinition dataConstantField = new FieldDefinition( "\0", structType, FieldAttributes.HasFieldRVA | FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly );
+                FieldDefinition dataConstantField = new FieldDefinition(NameMaker.UniqueName(1), structType, /*FieldAttributes.HasFieldRVA |*/ FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly);
 				newtype.Fields.Add( dataConstantField );
 
 				// Add data field where constructor copies the data to
-				FieldDefinition dataField = new FieldDefinition( "\0\0", new ArrayType( systemByteTypeReference ), FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly );
+                FieldDefinition dataField = new FieldDefinition(NameMaker.UniqueName(2), new ArrayType(systemByteTypeReference), FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly);
 				newtype.Fields.Add( dataField );
 
 				// Add string array of deobfuscated strings
-				FieldDefinition stringArrayField = new FieldDefinition( "\0\0\0", new ArrayType( systemStringTypeReference ), FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly );
+                FieldDefinition stringArrayField = new FieldDefinition(NameMaker.UniqueName(3), new ArrayType(systemStringTypeReference), FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly);
 				newtype.Fields.Add( stringArrayField );
 
 				// Add method to extract a string from the byte array. It is called by the indiviual string getter methods we add later to the class.
-				MethodDefinition stringGetterMethodDefinition = new MethodDefinition( "\0", MethodAttributes.Static | MethodAttributes.Private | MethodAttributes.HideBySig, systemStringTypeReference );
+                MethodDefinition stringGetterMethodDefinition = new MethodDefinition(NameMaker.UniqueName(4), MethodAttributes.Static | MethodAttributes.Private | MethodAttributes.HideBySig, systemStringTypeReference);
 				stringGetterMethodDefinition.Parameters.Add( new ParameterDefinition( systemIntTypeReference ) );
 				stringGetterMethodDefinition.Parameters.Add( new ParameterDefinition( systemIntTypeReference ) );
 				stringGetterMethodDefinition.Parameters.Add( new ParameterDefinition( systemIntTypeReference ) );
