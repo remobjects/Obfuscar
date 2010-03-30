@@ -378,13 +378,13 @@ namespace Obfuscar
 							string ns;
 							if ( project.Settings.ReuseNames )
 							{
-								name = NameMaker.UniqueTypeName( typeIndex );
+                                    name = NameMaker.UniqueTypeName( typeIndex );
 								ns = NameMaker.UniqueNamespace( typeIndex );
 							}
 							else
 							{
 								name = NameMaker.UniqueName( uniqueTypeNameIndex );
-								ns = NameMaker.UniqueNamespace( uniqueTypeNameIndex );
+                                    ns = NameMaker.UniqueNamespace(uniqueTypeNameIndex);
 								uniqueTypeNameIndex++;
 							}
 
@@ -1194,6 +1194,7 @@ namespace Obfuscar
 				stringGetterMethodDefinition.Parameters.Add( new ParameterDefinition( systemIntTypeReference ) );
 				stringGetterMethodDefinition.Parameters.Add( new ParameterDefinition( systemIntTypeReference ) );
 				stringGetterMethodDefinition.Body.Variables.Add( new VariableDefinition( systemStringTypeReference ) );
+                stringGetterMethodDefinition.Body.InitLocals = true;
 				CilWorker worker3 = stringGetterMethodDefinition.Body.CilWorker;
 
 				worker3.Emit( OpCodes.Call, library.MainModule.Import( typeof( System.Text.Encoding ).GetProperty( "UTF8" ).GetGetMethod( ) ) );
@@ -1227,6 +1228,7 @@ namespace Obfuscar
 						{
 							if (!info.ShouldSkipStringHiding(new MethodKey(method)) && method.Body != null )
 							{
+                                //SequencePoint sp = method.Body.Instructions;
 								for ( int i = 0; i < method.Body.Instructions.Count; i++ )
 								{
 									Instruction instruction = method.Body.Instructions[i];
@@ -1288,6 +1290,7 @@ namespace Obfuscar
 				newtype.Methods.Add( ctorMethodDefinition );
 				ctorMethodDefinition.Body = new MethodBody( ctorMethodDefinition );
 				ctorMethodDefinition.Body.Variables.Add( new VariableDefinition( systemIntTypeReference ) );
+                ctorMethodDefinition.Body.InitLocals = true;
 
 				CilWorker worker2 = ctorMethodDefinition.Body.CilWorker;
 				worker2.Emit( OpCodes.Ldc_I4, stringIndex );
