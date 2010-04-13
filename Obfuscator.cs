@@ -1172,12 +1172,12 @@ namespace Obfuscar
 				List<byte> databytes = new List<byte>( );
 
 				// Add struct for constant byte array data
-                TypeDefinition structType = new TypeDefinition(NameMaker.UniqueTypeName(++uniqueTypeNameIndex), "", TypeAttributes.ExplicitLayout | TypeAttributes.AnsiClass | TypeAttributes.Sealed | TypeAttributes.NestedPrivate, systemValueTypeTypeReference);
+                TypeDefinition structType = new TypeDefinition(NameMaker.UniqueName(1), "", TypeAttributes.ExplicitLayout | TypeAttributes.AnsiClass | TypeAttributes.Sealed | TypeAttributes.NestedPrivate, systemValueTypeTypeReference);
 				structType.PackingSize = 1;
 				newtype.NestedTypes.Add( structType );
 
 				// Add field with constant string data
-                FieldDefinition dataConstantField = new FieldDefinition(NameMaker.UniqueName(1), structType, /*FieldAttributes.HasFieldRVA |*/ FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly);
+                FieldDefinition dataConstantField = new FieldDefinition(NameMaker.UniqueName(1), structType, FieldAttributes.HasFieldRVA | FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly);
 				newtype.Fields.Add( dataConstantField );
 
 				// Add data field where constructor copies the data to
@@ -1189,12 +1189,12 @@ namespace Obfuscar
 				newtype.Fields.Add( stringArrayField );
 
 				// Add method to extract a string from the byte array. It is called by the indiviual string getter methods we add later to the class.
-                MethodDefinition stringGetterMethodDefinition = new MethodDefinition(NameMaker.UniqueName(4), MethodAttributes.Static | MethodAttributes.Private | MethodAttributes.HideBySig, systemStringTypeReference);
+                MethodDefinition stringGetterMethodDefinition = new MethodDefinition(NameMaker.UniqueName(1), MethodAttributes.Static | MethodAttributes.Private | MethodAttributes.HideBySig, systemStringTypeReference);
+                stringGetterMethodDefinition.Body.InitLocals = true;
 				stringGetterMethodDefinition.Parameters.Add( new ParameterDefinition( systemIntTypeReference ) );
 				stringGetterMethodDefinition.Parameters.Add( new ParameterDefinition( systemIntTypeReference ) );
 				stringGetterMethodDefinition.Parameters.Add( new ParameterDefinition( systemIntTypeReference ) );
 				stringGetterMethodDefinition.Body.Variables.Add( new VariableDefinition( systemStringTypeReference ) );
-                stringGetterMethodDefinition.Body.InitLocals = true;
 				CilWorker worker3 = stringGetterMethodDefinition.Body.CilWorker;
 
 				worker3.Emit( OpCodes.Call, library.MainModule.Import( typeof( System.Text.Encoding ).GetProperty( "UTF8" ).GetGetMethod( ) ) );
@@ -1228,7 +1228,7 @@ namespace Obfuscar
 						{
 							if (!info.ShouldSkipStringHiding(new MethodKey(method)) && method.Body != null )
 							{
-                                //SequencePoint sp = method.Body.Instructions;
+							    //SequencePoint sp = method.Body.Instructions;
 								for ( int i = 0; i < method.Body.Instructions.Count; i++ )
 								{
 									Instruction instruction = method.Body.Instructions[i];
