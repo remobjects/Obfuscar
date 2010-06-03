@@ -66,12 +66,31 @@ namespace Obfuscar
 			{
 				if (keyvalue != null)
 					return keyvalue;
-				if (vars.GetValue("KeyFile", null) == null)
+                		//var lKeyFileName = vars.GetValue("KeyFile", null);
+                		//var lKeyContainerName = vars.GetValue("KeyContainer", null);
+                		if (vars.GetValue("KeyContainer", null) == null && vars.GetValue("KeyFile", null) == null)
 					return null;
 				try
 				{
-					keyvalue = CryptoConvert.FromCapiKeyBlob(File.ReadAllBytes(vars.GetValue("KeyFile", null)));
+                    			if (vars.GetValue("KeyContainer", null) != null)
+                    			{
+                        			CspParameters cp = new CspParameters();
+                        			cp.KeyContainerName = vars.GetValue("KeyContainer", null);
+                        			cp.Flags = CspProviderFlags.UseExistingKey;
+
+                        			RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(cp);
+
+                        			keyvalue = CryptoConvert.FromCapiKeyBlob(rsa.ExportCspBlob(true));
+                    			}
+                    			else
+                    			{
+                        			keyvalue = CryptoConvert.FromCapiKeyBlob(File.ReadAllBytes(vars.GetValue("KeyFile", null)));
+                    			}
 				}
+                		catch (System.Security.Cryptography.CryptographicException CryptEx)
+                		{
+                    			throw new ApplicationException(String.Format("Failure loading key from container \"{0}\"", vars.GetValue("KeyContainer", null)), CryptEx);
+                		}
 				catch (Exception ex)
 				{
 					throw new ApplicationException(String.Format("Failure loading key file \"{0}\"", vars.GetValue("KeyFile", null)), ex);
