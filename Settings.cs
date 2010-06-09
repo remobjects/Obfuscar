@@ -41,6 +41,7 @@ namespace Obfuscar
         bool useUnicodeNames;
 		bool xmlMapping;
 		bool hideStrings;
+        bool renegerateDebugInfo;
 
 		internal Settings( Variables vars )
 		{
@@ -56,7 +57,13 @@ namespace Obfuscar
 			hideStrings = XmlConvert.ToBoolean(vars.GetValue("HideStrings", "true"));
 
 			xmlMapping = XmlConvert.ToBoolean( vars.GetValue( "XmlMapping", "false" ) );
+            renegerateDebugInfo = XmlConvert.ToBoolean(vars.GetValue("RegenerateDebugInfo", "false") );
 		}
+
+        public bool RegenerateDebugInfo
+        {
+            get { return renegerateDebugInfo; }
+        }
 
 		public string InPath
 		{

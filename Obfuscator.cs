@@ -125,6 +125,14 @@ namespace Obfuscar
 				string outName = System.IO.Path.Combine( outPath,
 					System.IO.Path.GetFileName( info.Filename ) );
 
+                if ( project.Settings.RegenerateDebugInfo )
+                {
+                    foreach ( ModuleDefinition md in info.Definition.Modules )
+                    {
+                        md.SaveSymbols( System.IO.Path.GetDirectoryName( outName ));
+                        md.Image.DebugHeader.FileName = System.IO.Path.ChangeExtension(outName, "pdb");
+                    }
+                }
 				AssemblyFactory.SaveAssembly( info.Definition, outName );
 				if ( info.Definition.Name.HasPublicKey )
 				{
@@ -573,12 +581,12 @@ namespace Obfuscar
 				string typename = typeparts[0].Trim();
 				string obfuscatedtypename;
 				if (typeRenameMap.TryGetValue(typename, out obfuscatedtypename))
-				{
-					string newtypename = obfuscatedtypename;
-					for (int n = 1; n < typeparts.Length; n++)
-						newtypename += ',' + typeparts[n];
-					return newtypename;
-				}
+                {
+                    string newtypename = obfuscatedtypename;
+                    for (int n = 1; n < typeparts.Length; n++)
+                        newtypename += ',' + typeparts[n];
+                    return newtypename;
+                }
 			}
 			return typeString;
 		}
@@ -1271,6 +1279,8 @@ namespace Obfuscar
 										}
 										CilWorker worker = method.Body.CilWorker;
 										Instruction newinstruction = worker.Create( OpCodes.Call, individualStringMethodDefinition );
+                                        newinstruction.SequencePoint = instruction.SequencePoint;
+                                        ReplaceScopePoint( method.Body.Scopes, instruction, newinstruction );
 										worker.Replace( instruction, newinstruction );
 									}
 								}
@@ -1337,5 +1347,18 @@ namespace Obfuscar
 				library.MainModule.Types.Add( newtype );
 			}
 		}
-	}
+
+        private void ReplaceScopePoint(ScopeCollection scopeCollection, Instruction instruction, Instruction newinstruction)
+        {
+            for (int i = 0; i < scopeCollection.Count; i++)
+            {
+                if (scopeCollection[i].Start == instruction)
+                    scopeCollection[i].Start = newinstruction;
+                else if (scopeCollection[i].End == instruction)
+                    scopeCollection[i].End = newinstruction;
+                if (scopeCollection[i].Scopes != null)
+                    ReplaceScopePoint(scopeCollection[i].Scopes, instruction, newinstruction);
+            }
+        }
+    }
 }
