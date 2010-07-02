@@ -72,25 +72,25 @@ namespace Obfuscar
 					return null;
 				try
 				{
-                    			if (vars.GetValue("KeyContainer", null) != null)
-                    			{
-                        			CspParameters cp = new CspParameters();
-                        			cp.KeyContainerName = vars.GetValue("KeyContainer", null);
-                        			cp.Flags = CspProviderFlags.UseExistingKey;
+                    	if (vars.GetValue("KeyContainer", null) != null)
+                    	{
+                        	CspParameters cp = new CspParameters();
+                        	cp.KeyContainerName = vars.GetValue("KeyContainer", null);
+                        	cp.Flags = CspProviderFlags.UseExistingKey;
 
-                        			RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(cp);
+                        	RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(cp);
 
-                        			keyvalue = CryptoConvert.FromCapiKeyBlob(rsa.ExportCspBlob(true));
-                    			}
-                    			else
-                    			{
-                        			keyvalue = CryptoConvert.FromCapiKeyBlob(File.ReadAllBytes(vars.GetValue("KeyFile", null)));
-                    			}
+                        	keyvalue = CryptoConvert.FromCapiKeyBlob(rsa.ExportCspBlob(true));
+                    	}
+                    	else
+                    	{
+                        	keyvalue = CryptoConvert.FromCapiKeyBlob(File.ReadAllBytes(vars.GetValue("KeyFile", null)));
+                    	}
 				}
-                		catch (System.Security.Cryptography.CryptographicException CryptEx)
-                		{
-                    			throw new ApplicationException(String.Format("Failure loading key from container \"{0}\"", vars.GetValue("KeyContainer", null)), CryptEx);
-                		}
+                catch (System.Security.Cryptography.CryptographicException CryptEx)
+                {
+                    	throw new ApplicationException(String.Format("Failure loading key from container \"{0}\"", vars.GetValue("KeyContainer", null)), CryptEx);
+                }
 				catch (Exception ex)
 				{
 					throw new ApplicationException(String.Format("Failure loading key file \"{0}\"", vars.GetValue("KeyFile", null)), ex);
@@ -174,8 +174,11 @@ namespace Obfuscar
 		public void LoadAssemblies( )
 		{
 			// make everything fully load
-			foreach ( AssemblyInfo info in assemblyList )
-				info.Definition.MainModule.FullLoad( );
+            foreach (AssemblyInfo info in assemblyList)
+            {
+                Console.WriteLine("Loading assembly: " + info.Definition.Name.FullName);
+                info.Definition.MainModule.FullLoad();
+            }
 
 			// build reference tree
 			foreach ( AssemblyInfo info in assemblyList )

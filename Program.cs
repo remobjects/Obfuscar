@@ -90,14 +90,14 @@ namespace Obfuscar
 			catch ( ApplicationException e )
 			{
 				Console.WriteLine( );
-				Console.Error.WriteLine( "An error occurred during processing:" );
-				Console.Error.WriteLine( e.Message );
+				Console.WriteLine( "An error occurred during processing:" );
+				Console.WriteLine( e.Message );
 				return 1;
 			}
 			catch(Exception e) {
 				Console.WriteLine ();
-				Console.Error.WriteLine ("A fatal error occurred during processing:");
-				Console.Error.WriteLine (e.ToString ());
+				Console.WriteLine ("A fatal error occurred during processing:");
+				Console.WriteLine (e.ToString ());
 				return 1;
 			}
 
