@@ -124,6 +124,7 @@ namespace Obfuscar
 						}
 						case "Module":
 							AssemblyInfo info = AssemblyInfo.FromXml( project, reader, project.vars );
+                            Console.WriteLine("Processing assembly: " + info.Definition.Name.FullName);
 							project.assemblyList.Add( info );
 							project.assemblyMap[info.Name] = info;
 							break;
@@ -176,7 +177,6 @@ namespace Obfuscar
 			// make everything fully load
             foreach (AssemblyInfo info in assemblyList)
             {
-                Console.WriteLine("Loading assembly: " + info.Definition.Name.FullName);
                 info.Definition.MainModule.FullLoad();
             }
 

@@ -47,7 +47,7 @@ namespace Obfuscar
 
 			try
 			{
-				Console.Write( "Loading project..." );
+				Console.Write( "Loading project (calling as EXE)..." );
 				Obfuscator obfuscator = new Obfuscator( args[0] );
 				Console.WriteLine( "Done." );
 

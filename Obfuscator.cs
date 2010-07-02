@@ -108,7 +108,9 @@ namespace Obfuscar
 			project.CheckSettings( );
             NameMaker.UseUnicodeChars = project.Settings.UseUnicodeNames;
 
-			Console.Write( "Loading assemblies..." );
+			Console.WriteLine( "Loading assemblies..." );
+            Console.WriteLine("Extra framework folders: ");
+            foreach (var lExtraPath in project.ExtraPaths?? new string[0]) Console.WriteLine(lExtraPath + ", ");
 			project.LoadAssemblies( );
 		}
 

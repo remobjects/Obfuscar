@@ -118,12 +118,13 @@ namespace Obfuscar
 					{
 						try
 						{
+                            Console.WriteLine("Trying to resolve dependency: " + name);
                             assmDef = resolver.Resolve(name);
 							cache[name.FullName] = assmDef;
 						}
                         catch (FileNotFoundException)
 						{
-                            throw new ApplicationException("Unable to resolve dependency:  " + name.Name);
+                            throw new ApplicationException("Unable to resolve dependency:  " + name.FullName);
 						}
 					}
 
