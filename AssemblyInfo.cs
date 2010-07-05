@@ -264,6 +264,11 @@ namespace Obfuscar
 			try
 			{
 				definition = AssemblyFactory.GetAssembly( filename );
+                if (definition.MainModule.Image.MetadataRoot.Header.Version.StartsWith("v4"))
+                {
+                    //definition.MainModule.Image.MetadataRoot.Header.MajorVersion = 4;
+                    definition.Runtime = TargetRuntime.NET_4_0;
+                }
 				name = definition.Name.Name;
 			}
 			catch ( System.IO.FileNotFoundException e )
