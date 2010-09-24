@@ -68,8 +68,16 @@ namespace Obfuscar
 					return keyvalue;
                 		//var lKeyFileName = vars.GetValue("KeyFile", null);
                 		//var lKeyContainerName = vars.GetValue("KeyContainer", null);
-                		if (vars.GetValue("KeyContainer", null) == null && vars.GetValue("KeyFile", null) == null)
+						
+				var lKeyContainer = vars.GetValue("KeyContainer", null);
+				var lKeyFile = vars.GetValue("KeyFile", null);		
+				
+                if  (lKeyFile == null && lKeyContainer == null)
 					return null;
+				
+				if (lKeyContainer != null && lKeyFile != null)
+					throw new Exception("Assemblies signing ambiguousness: specify key file or key container only.");
+					
 				try
 				{
                     	if (vars.GetValue("KeyContainer", null) != null)
