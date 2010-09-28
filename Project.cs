@@ -77,63 +77,51 @@ namespace Obfuscar
                 if (lKeyFileName != null && lKeyContainerName != null)
                     throw new Exception("'Key file' and 'Key container' properties cann't be setted together.");
 
-				try
-				{
-                	if (vars.GetValue("KeyContainer", null) != null)
-                	{
-                        if (Type.GetType("System.MonoType") != null)
-                            throw new Exception("Key containers are not supported for Mono.");
+            	if (vars.GetValue("KeyContainer", null) != null)
+            	{
+                    if (Type.GetType("System.MonoType") != null)
+                        throw new Exception("Key containers are not supported for Mono.");
 
-                        //var lSuccess = Obfuscar.Obfuscator.MsNetSigner.TryKeyContainerPermissionCheck(vars.GetValue("KeyContainer", null));
-
+                    try
+                    {
                         CspParameters cp = new CspParameters();
                         cp.KeyContainerName = vars.GetValue("KeyContainer", null);
                         cp.Flags = CspProviderFlags.UseMachineKeyStore | CspProviderFlags.UseExistingKey;
                         cp.KeyNumber = 1;
 
-                        //CryptoKeySecurity securityRules = new CryptoKeySecurity();
-
-                        //CryptoKeyAccessRule rule1 =
-                        //    new CryptoKeyAccessRule(WindowsIdentity.GetCurrent().User.AccountDomainSid,
-                        //                            CryptoKeyRights.ReadData,
-                        //                            AccessControlType.Allow);
-
-                        //CryptoKeyAccessRule rule2 =
-                        //    new CryptoKeyAccessRule("Администраторы",
-                        //                            CryptoKeyRights.ReadData,
-                        //                            AccessControlType.Allow);
-                        //CryptoKeyAccessRule rule3 =
-                        //    new CryptoKeyAccessRule(WindowsIdentity.GetCurrent().Name,
-                        //                            CryptoKeyRights.ReadData,// | CryptoKeyRights.WriteData, 
-                        //                            AccessControlType.Allow);
-                        //securityRules.AddAccessRule(rule1);
-                        //securityRules.AddAccessRule(rule2);
-                        //securityRules.AddAccessRule(rule3);
-
-                        //cp.CryptoKeySecurity = securityRules;
-
                         RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(cp);
-
                         keyvalue = CryptoConvert.FromCapiKeyBlob(rsa.ExportCspBlob(false));
+                    }
+                    catch (Exception CryptEx)
+                    //catch (System.Security.Cryptography.CryptographicException CryptEx)
+                    {
+                        try
+                        {
+                            CspParameters cp = new CspParameters();
+                            cp.KeyContainerName = vars.GetValue("KeyContainer", null);
+                            cp.Flags = CspProviderFlags.UseExistingKey;
+                            cp.KeyNumber = 1;
 
-                        ////var lres = new Mono.Security.Cryptography.KeyPairPersistence(cp);
-                        ////var r1 = lres.Load();
-                        ////if (r1 == false)
-                        ////    throw new System.Security.Cryptography.CryptographicException();
-                	}
-                	else
-                	{
-                    	keyvalue = CryptoConvert.FromCapiKeyBlob(File.ReadAllBytes(vars.GetValue("KeyFile", null)));
-                	}
-				}
-                catch (System.Security.Cryptography.CryptographicException CryptEx)
-                {
-                    	throw new ApplicationException(String.Format("Failure loading key from container \"{0}\"", vars.GetValue("KeyContainer", null)), CryptEx);
-                }
-				catch (Exception ex)
-				{
-					throw new ApplicationException(String.Format("Failure loading key file \"{0}\"", vars.GetValue("KeyFile", null)), ex);
-				}
+                            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(cp);
+                            keyvalue = CryptoConvert.FromCapiKeyBlob(rsa.ExportCspBlob(false));
+                        }
+                        catch
+                        {
+                            throw new ApplicationException(String.Format("Failure loading key from container - \"{0}\"", vars.GetValue("KeyContainer", null)), CryptEx);
+                        }
+                    }
+            	}
+            	else
+            	{
+                    try
+                    {
+                        keyvalue = CryptoConvert.FromCapiKeyBlob(File.ReadAllBytes(vars.GetValue("KeyFile", null)));
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ApplicationException(String.Format("Failure loading key file \"{0}\"", vars.GetValue("KeyFile", null)), ex);
+                    }
+            	}           				
 				return keyvalue;
 			}
 		}
