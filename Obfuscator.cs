@@ -142,8 +142,15 @@ namespace Obfuscar
 				AssemblyFactory.SaveAssembly( info.Definition, outName );
 				if ( info.Definition.Name.HasPublicKey )
 				{
-                    StrongName sn = new StrongName(project.KeyValue);
-                    sn.Sign(outName);
+                    if (project.KeyContainerName != null)
+                    {
+                        Obfuscator.MsNetSigner.SignAssemblyFromKeyContainer(outName, project.KeyContainerName);
+                    }
+                    else
+                    {
+                        StrongName sn = new StrongName(project.KeyValue);
+                        sn.Sign(outName);
+                    }
 				}
 			}
 		}
@@ -1367,24 +1374,24 @@ namespace Obfuscar
             }
         }
 
-        //public static class MsNetSigner
-        //{
-        //    [System.Runtime.InteropServices.DllImport("mscoree.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true)]
-        //    private static extern bool StrongNameSignatureGeneration(
-        //        [/*In, */System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)]string wzFilePath,
-        //        [/*In, */System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)]string wzKeyContainer,
-        //        /*[In]*/byte[] pbKeyBlob,
-        //        /*[In]*/uint cbKeyBlob,
-        //        /*[In]*/IntPtr ppbSignatureBlob, // not supported, always pass 0.
-        //        [System.Runtime.InteropServices.Out]out uint pcbSignatureBlob
-        //        );
+        public static class MsNetSigner
+        {
+            [System.Runtime.InteropServices.DllImport("mscoree.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true)]
+            private static extern bool StrongNameSignatureGeneration(
+                [/*In, */System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)]string wzFilePath,
+                [/*In, */System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)]string wzKeyContainer,
+                /*[In]*/byte[] pbKeyBlob,
+                /*[In]*/uint cbKeyBlob,
+                /*[In]*/IntPtr ppbSignatureBlob, // not supported, always pass 0.
+                [System.Runtime.InteropServices.Out]out uint pcbSignatureBlob
+                );
 
-        //    public static void SignAssemblyFromKeyContainer(string assemblyname, string keyname)
-        //    {
-        //        uint dummy;
-        //        if (!StrongNameSignatureGeneration(assemblyname, keyname, null, 0, IntPtr.Zero, out dummy))
-        //            throw new Exception("Unable to sign assembly using key from key container - " + keyname);
-        //    }
+            public static void SignAssemblyFromKeyContainer(string assemblyname, string keyname)
+            {
+                uint dummy;
+                if (!StrongNameSignatureGeneration(assemblyname, keyname, null, 0, IntPtr.Zero, out dummy))
+                    throw new Exception("Unable to sign assembly using key from key container - " + keyname);
+            }
 
         //    internal static bool TryKeyContainerPermissionCheck(string secretKeyName)
         //    {
@@ -1460,6 +1467,6 @@ namespace Obfuscar
 
         //        return returnValue;
         //    }
-        //}
+        }
     }
 }

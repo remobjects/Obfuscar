@@ -62,6 +62,8 @@ namespace Obfuscar
 			}
 		}
 
+        public string KeyContainerName = null;
+
 		public RSA KeyValue
 		{
 			get
@@ -79,37 +81,39 @@ namespace Obfuscar
 
             	if (vars.GetValue("KeyContainer", null) != null)
             	{
-                    if (Type.GetType("System.MonoType") != null)
-                        throw new Exception("Key containers are not supported for Mono.");
+                    KeyContainerName = vars.GetValue("KeyContainer", null);
+                    return RSA.Create();
+                    //if (Type.GetType("System.MonoType") != null)
+                    //    throw new Exception("Key containers are not supported for Mono.");
 
-                    try
-                    {
-                        CspParameters cp = new CspParameters();
-                        cp.KeyContainerName = vars.GetValue("KeyContainer", null);
-                        cp.Flags = CspProviderFlags.UseMachineKeyStore | CspProviderFlags.UseExistingKey;
-                        cp.KeyNumber = 1;
+                    //try
+                    //{
+                    //    CspParameters cp = new CspParameters();
+                    //    cp.KeyContainerName = vars.GetValue("KeyContainer", null);
+                    //    cp.Flags = CspProviderFlags.UseMachineKeyStore | CspProviderFlags.UseExistingKey;
+                    //    cp.KeyNumber = 1;
 
-                        RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(cp);
-                        keyvalue = CryptoConvert.FromCapiKeyBlob(rsa.ExportCspBlob(false));
-                    }
-                    catch (Exception CryptEx)
-                    //catch (System.Security.Cryptography.CryptographicException CryptEx)
-                    {
-                        try
-                        {
-                            CspParameters cp = new CspParameters();
-                            cp.KeyContainerName = vars.GetValue("KeyContainer", null);
-                            cp.Flags = CspProviderFlags.UseExistingKey;
-                            cp.KeyNumber = 1;
+                    //    RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(cp);
+                    //    keyvalue = CryptoConvert.FromCapiKeyBlob(rsa.ExportCspBlob(false));
+                    //}
+                    //catch (Exception CryptEx)
+                    ////catch (System.Security.Cryptography.CryptographicException CryptEx)
+                    //{
+                    //    try
+                    //    {
+                    //        CspParameters cp = new CspParameters();
+                    //        cp.KeyContainerName = vars.GetValue("KeyContainer", null);
+                    //        cp.Flags = CspProviderFlags.UseExistingKey;
+                    //        cp.KeyNumber = 1;
 
-                            RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(cp);
-                            keyvalue = CryptoConvert.FromCapiKeyBlob(rsa.ExportCspBlob(false));
-                        }
-                        catch
-                        {
-                            throw new ApplicationException(String.Format("Failure loading key from container - \"{0}\"", vars.GetValue("KeyContainer", null)), CryptEx);
-                        }
-                    }
+                    //        RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(cp);
+                    //        keyvalue = CryptoConvert.FromCapiKeyBlob(rsa.ExportCspBlob(false));
+                    //    }
+                    //    catch
+                    //    {
+                    //        throw new ApplicationException(String.Format("Failure loading key from container - \"{0}\"", vars.GetValue("KeyContainer", null)), CryptEx);
+                    //    }
+                    //}
             	}
             	else
             	{
