@@ -33,6 +33,8 @@ using System.IO;
 using Mono.Cecil;
 using Mono.Security.Cryptography;
 using System.Security.Cryptography;
+using System.Security.AccessControl;
+//using System.Security.Principal;
 
 namespace Obfuscar
 {
@@ -66,34 +68,63 @@ namespace Obfuscar
 			{
 				if (keyvalue != null)
 					return keyvalue;
-                		//var lKeyFileName = vars.GetValue("KeyFile", null);
-                		//var lKeyContainerName = vars.GetValue("KeyContainer", null);
-						
-				var lKeyContainer = vars.GetValue("KeyContainer", null);
-				var lKeyFile = vars.GetValue("KeyFile", null);		
-				
-                if  (lKeyFile == null && lKeyContainer == null)
-					return null;
-				
-				if (lKeyContainer != null && lKeyFile != null)
-					throw new Exception("Assemblies signing ambiguousness: specify key file or key container only.");
-					
+
+                var lKeyFileName = vars.GetValue("KeyFile", null);
+                var lKeyContainerName = vars.GetValue("KeyContainer", null);
+
+                if (lKeyFileName == null && lKeyContainerName == null)
+                    return null;
+                if (lKeyFileName != null && lKeyContainerName != null)
+                    throw new Exception("'Key file' and 'Key container' properties cann't be setted together.");
+
 				try
 				{
-                    	if (vars.GetValue("KeyContainer", null) != null)
-                    	{
-                        	CspParameters cp = new CspParameters();
-                        	cp.KeyContainerName = vars.GetValue("KeyContainer", null);
-                        	cp.Flags = CspProviderFlags.UseExistingKey;
+                	if (vars.GetValue("KeyContainer", null) != null)
+                	{
+                        if (Type.GetType("System.MonoType") != null)
+                            throw new Exception("Key containers are not supported for Mono.");
 
-                        	RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(cp);
+                        //var lSuccess = Obfuscar.Obfuscator.MsNetSigner.TryKeyContainerPermissionCheck(vars.GetValue("KeyContainer", null));
 
-                        	keyvalue = CryptoConvert.FromCapiKeyBlob(rsa.ExportCspBlob(true));
-                    	}
-                    	else
-                    	{
-                        	keyvalue = CryptoConvert.FromCapiKeyBlob(File.ReadAllBytes(vars.GetValue("KeyFile", null)));
-                    	}
+                        CspParameters cp = new CspParameters();
+                        cp.KeyContainerName = vars.GetValue("KeyContainer", null);
+                        cp.Flags = CspProviderFlags.UseMachineKeyStore | CspProviderFlags.UseExistingKey;
+                        cp.KeyNumber = 1;
+
+                        //CryptoKeySecurity securityRules = new CryptoKeySecurity();
+
+                        //CryptoKeyAccessRule rule1 =
+                        //    new CryptoKeyAccessRule(WindowsIdentity.GetCurrent().User.AccountDomainSid,
+                        //                            CryptoKeyRights.ReadData,
+                        //                            AccessControlType.Allow);
+
+                        //CryptoKeyAccessRule rule2 =
+                        //    new CryptoKeyAccessRule("Администраторы",
+                        //                            CryptoKeyRights.ReadData,
+                        //                            AccessControlType.Allow);
+                        //CryptoKeyAccessRule rule3 =
+                        //    new CryptoKeyAccessRule(WindowsIdentity.GetCurrent().Name,
+                        //                            CryptoKeyRights.ReadData,// | CryptoKeyRights.WriteData, 
+                        //                            AccessControlType.Allow);
+                        //securityRules.AddAccessRule(rule1);
+                        //securityRules.AddAccessRule(rule2);
+                        //securityRules.AddAccessRule(rule3);
+
+                        //cp.CryptoKeySecurity = securityRules;
+
+                        RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(cp);
+
+                        keyvalue = CryptoConvert.FromCapiKeyBlob(rsa.ExportCspBlob(false));
+
+                        ////var lres = new Mono.Security.Cryptography.KeyPairPersistence(cp);
+                        ////var r1 = lres.Load();
+                        ////if (r1 == false)
+                        ////    throw new System.Security.Cryptography.CryptographicException();
+                	}
+                	else
+                	{
+                    	keyvalue = CryptoConvert.FromCapiKeyBlob(File.ReadAllBytes(vars.GetValue("KeyFile", null)));
+                	}
 				}
                 catch (System.Security.Cryptography.CryptographicException CryptEx)
                 {

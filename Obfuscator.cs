@@ -33,6 +33,10 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Security;
 
+using System.Security.Principal;
+using System.IO;
+using System.Security.AccessControl;
+
 namespace Obfuscar
 {
 	public class Obfuscator
@@ -138,8 +142,8 @@ namespace Obfuscar
 				AssemblyFactory.SaveAssembly( info.Definition, outName );
 				if ( info.Definition.Name.HasPublicKey )
 				{
-					StrongName sn = new StrongName( project.KeyValue );
-					sn.Sign(outName);
+                    StrongName sn = new StrongName(project.KeyValue);
+                    sn.Sign(outName);
 				}
 			}
 		}
@@ -1362,5 +1366,100 @@ namespace Obfuscar
                     ReplaceScopePoint(scopeCollection[i].Scopes, instruction, newinstruction);
             }
         }
+
+        //public static class MsNetSigner
+        //{
+        //    [System.Runtime.InteropServices.DllImport("mscoree.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true)]
+        //    private static extern bool StrongNameSignatureGeneration(
+        //        [/*In, */System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)]string wzFilePath,
+        //        [/*In, */System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)]string wzKeyContainer,
+        //        /*[In]*/byte[] pbKeyBlob,
+        //        /*[In]*/uint cbKeyBlob,
+        //        /*[In]*/IntPtr ppbSignatureBlob, // not supported, always pass 0.
+        //        [System.Runtime.InteropServices.Out]out uint pcbSignatureBlob
+        //        );
+
+        //    public static void SignAssemblyFromKeyContainer(string assemblyname, string keyname)
+        //    {
+        //        uint dummy;
+        //        if (!StrongNameSignatureGeneration(assemblyname, keyname, null, 0, IntPtr.Zero, out dummy))
+        //            throw new Exception("Unable to sign assembly using key from key container - " + keyname);
+        //    }
+
+        //    internal static bool TryKeyContainerPermissionCheck(string secretKeyName)
+        //    {
+
+        //        bool returnValue = false;
+
+        //        WindowsIdentity current = WindowsIdentity.GetCurrent();
+
+        //        WindowsPrincipal currentPrincipal = new WindowsPrincipal(current);
+
+        //        if (currentPrincipal.IsInRole(WindowsBuiltInRole.Administrator))
+        //        {
+        //            try
+        //            {
+        //                foreach (string fileName in Directory.GetFiles(
+        //                    @"C:\Documents and Settings\All Users\" +
+        //                    @"Application Data\Microsoft\Crypto\RSA\MachineKeys"))
+        //                {
+        //                    FileInfo fi = new FileInfo(fileName);
+
+        //                    if (fi.Length <= 1024 * 5)
+        //                    { // no key file should be greater then 5KB
+        //                        try
+        //                        {
+        //                            using (StreamReader sr = fi.OpenText())
+        //                            {
+        //                                string fileData = sr.ReadToEnd();
+        //                                if (fileData.Contains(secretKeyName))
+        //                                { // this is our file
+
+        //                                    FileSecurity fileSecurity = fi.GetAccessControl();
+
+        //                                    bool currentIdentityFoundInACL = false;
+        //                                    foreach (FileSystemAccessRule rule in fileSecurity
+        //                                                                               .GetAccessRules(true, true, typeof(NTAccount)))
+        //                                    {
+        //                                        if (rule.IdentityReference.Value.ToLower()
+        //                                            == current.Name.ToLower())
+        //                                        {
+        //                                            returnValue = true;
+        //                                            currentIdentityFoundInACL = true;
+        //                                            break;
+        //                                        }
+        //                                    }
+
+        //                                    //if (!currentIdentityFoundInACL)
+        //                                    {
+        //                                        fileSecurity.AddAccessRule(
+        //                                            new FileSystemAccessRule(
+        //                                                current.Name,
+        //                                                FileSystemRights.FullControl,
+        //                                                AccessControlType.Allow
+        //                                            ));
+
+        //                                        fi.SetAccessControl(fileSecurity);
+
+        //                                        returnValue = true;
+        //                                    }
+        //                                    break;
+        //                                }
+        //                            }
+        //                        }
+        //                        catch { }
+        //                    }
+        //                }
+        //            }
+        //            catch (UnauthorizedAccessException)
+        //            {
+        //                throw;
+        //            }
+        //            catch { }
+        //        }
+
+        //        return returnValue;
+        //    }
+        //}
     }
 }
