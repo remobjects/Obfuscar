@@ -1182,9 +1182,50 @@ namespace Obfuscar
 				TypeReference systemObjectTypeReference = library.MainModule.Import( typeof( Object ) );
 				TypeReference systemVoidTypeReference = library.MainModule.Import( typeof( void ) );
 				TypeReference systemStringTypeReference = library.MainModule.Import( typeof( String ) );
-				TypeReference systemValueTypeTypeReference = library.MainModule.Import( typeof( ValueType ) );
-				TypeReference systemByteTypeReference = library.MainModule.Import( typeof( byte ) );
-				TypeReference systemIntTypeReference = library.MainModule.Import( typeof( int ) );
+
+                //check if mscorlib there and import types only if it is not there
+                AssemblyNameReference lmscorlibRef = null; //typeof(byte).Assembly;
+                foreach (AssemblyNameReference lRef in library.MainModule.AssemblyReferences)
+                {
+                    if (lRef.Name == "mscorlib")
+                    {
+                        lmscorlibRef = lRef;
+                    }
+                }
+
+                TypeReference systemValueTypeTypeReference = null;
+                TypeReference systemByteTypeReference = null;
+                TypeReference systemIntTypeReference = null;
+                if (lmscorlibRef == null)
+                {
+                    systemValueTypeTypeReference = library.MainModule.Import(typeof(ValueType));
+                    systemByteTypeReference = library.MainModule.Import(typeof(byte));
+                    systemIntTypeReference = library.MainModule.Import(typeof(int));
+                }
+                else
+                {
+                    var lsystemValueTypeTypeReference = typeof(ValueType);
+                    systemValueTypeTypeReference = new TypeReference(string.Empty, lsystemValueTypeTypeReference.Name, lmscorlibRef, lsystemValueTypeTypeReference.IsValueType);
+                    systemValueTypeTypeReference.Module = library.MainModule;
+
+                    var lsystemByteTypeReference = typeof(byte);
+                    systemByteTypeReference = new TypeReference(string.Empty, lsystemByteTypeReference.Name, lmscorlibRef, lsystemByteTypeReference.IsValueType);
+                    systemByteTypeReference.Module = library.MainModule;
+
+                    var lsystemIntTypeReference = typeof(ValueType);
+                    systemIntTypeReference = new TypeReference(string.Empty, lsystemIntTypeReference.Name, lmscorlibRef, lsystemIntTypeReference.IsValueType);
+                    systemIntTypeReference.Module = library.MainModule;
+
+                    /*var lsystemValueTypeTypeReference = lmscorlibRef.GetType().Assembly.GetType("System.ValueType");
+                    //var lsystemValueTypeTypeReference = Type.GetType("System.ValueType, " + lmscorlibRef.FullName);
+                    systemValueTypeTypeReference = library.MainModule.Import(lsystemValueTypeTypeReference);
+
+                    var lsystemByteTypeReference = lmscorlibRef.GetType().Assembly.GetType("System.Byte");//Type.GetType("System.Byte, " + lmscorlibRef.FullName);
+                    systemByteTypeReference = library.MainModule.Import(lsystemByteTypeReference);
+
+                    var lsystemIntTypeReference = lmscorlibRef.GetType().Assembly.GetType("System.Int32");//Type.GetType("System.Int32, " + lmscorlibRef.FullName);
+                    systemIntTypeReference = library.MainModule.Import(lsystemIntTypeReference);*/
+                }
 
 				// New static class with a method for each unique string we substitute.
 				TypeDefinition newtype = new TypeDefinition( "<PrivateImplementationDetails>{" + Guid.NewGuid( ).ToString( ).ToUpper( ) + "}", null, TypeAttributes.BeforeFieldInit | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.BeforeFieldInit, systemObjectTypeReference );
@@ -1218,11 +1259,37 @@ namespace Obfuscar
 				stringGetterMethodDefinition.Body.Variables.Add( new VariableDefinition( systemStringTypeReference ) );
 				CilWorker worker3 = stringGetterMethodDefinition.Body.CilWorker;
 
-				worker3.Emit( OpCodes.Call, library.MainModule.Import( typeof( System.Text.Encoding ).GetProperty( "UTF8" ).GetGetMethod( ) ) );
+                MethodReference lEncodingUtf8 = null;
+                MethodReference lEncodingGetString = null;
+                if (lmscorlibRef == null)
+                {
+                    lEncodingUtf8 = library.MainModule.Import(typeof(System.Text.Encoding).GetProperty("UTF8").GetGetMethod());
+                    lEncodingGetString = library.MainModule.Import(typeof(System.Text.Encoding).GetMethod("GetString", new Type[] { typeof(byte[]), typeof(int), typeof(int) }));
+                }
+                else
+                {
+                    var lEncodingType = typeof(System.Text.Encoding);
+                    
+                    var lEncodingUtf8Local = typeof(System.Text.Encoding).GetProperty("UTF8").GetGetMethod();
+                    var lDeclaringType = new TypeReference(string.Empty, lEncodingType.Name, lmscorlibRef, lEncodingType.IsValueType);
+                    lDeclaringType.Module = library.MainModule;
+                    var lMethodInfoUtf8 = lEncodingUtf8Local as System.Reflection.MethodInfo;
+                    var lReturnTypeUtf8 = new TypeReference(string.Empty, lMethodInfoUtf8.ReturnType.Name, lmscorlibRef, lMethodInfoUtf8.ReturnType.IsValueType);
+                    lReturnTypeUtf8.Module = library.MainModule;
+                    lEncodingUtf8 = new MethodReference(lEncodingUtf8Local.Name, lDeclaringType, lReturnTypeUtf8, true, true, MethodCallingConvention.Default);
+
+                    var lEncodingGetStringLocal = typeof(System.Text.Encoding).GetMethod("GetString", new Type[] { typeof(byte[]), typeof(int), typeof(int) });
+                    var lMethodInfoGetString = lEncodingGetStringLocal as System.Reflection.MethodInfo;
+                    var lReturnTypeGetString = new TypeReference(string.Empty, lMethodInfoGetString.ReturnType.Name, lmscorlibRef, lMethodInfoGetString.ReturnType.IsValueType);
+                    lReturnTypeGetString.Module = library.MainModule;
+                    lEncodingGetString = new MethodReference(lEncodingGetStringLocal.Name, lDeclaringType, lReturnTypeGetString, true, true, MethodCallingConvention.Default);
+                }
+
+                worker3.Emit(OpCodes.Call, lEncodingUtf8/*library.MainModule.Import( typeof( System.Text.Encoding ).GetProperty( "UTF8" ).GetGetMethod( ) )*/ );
 				worker3.Emit( OpCodes.Ldsfld, dataField );
 				worker3.Emit( OpCodes.Ldarg_1 );
 				worker3.Emit( OpCodes.Ldarg_2 );
-				worker3.Emit( OpCodes.Callvirt, library.MainModule.Import( typeof( System.Text.Encoding ).GetMethod( "GetString", new Type[] { typeof( byte[] ), typeof( int ), typeof( int ) } ) ) );
+                worker3.Emit(OpCodes.Callvirt, lEncodingGetString/*library.MainModule.Import( typeof( System.Text.Encoding ).GetMethod( "GetString", new Type[] { typeof( byte[] ), typeof( int ), typeof( int ) } ) ) */);
 				worker3.Emit( OpCodes.Stloc_0 );
 
 				worker3.Emit( OpCodes.Ldsfld, stringArrayField );
@@ -1320,12 +1387,29 @@ namespace Obfuscar
 				worker2.Emit( OpCodes.Newarr, systemStringTypeReference );
 				worker2.Emit( OpCodes.Stsfld, stringArrayField );
 
+                MethodReference lRuntimeHelpers = null;
+                if (lmscorlibRef == null)
+                {
+                    lRuntimeHelpers = library.MainModule.Import(typeof(System.Runtime.CompilerServices.RuntimeHelpers).GetMethod("InitializeArray"));
+                }
+                else
+                {
+                    var lRuntimeHelpersType = typeof(System.Runtime.CompilerServices.RuntimeHelpers);
+
+                    var lRuntimeHelpersLocal = typeof(System.Runtime.CompilerServices.RuntimeHelpers).GetMethod("InitializeArray");
+                    var lDeclaringType = new TypeReference(string.Empty, lRuntimeHelpersType.Name, lmscorlibRef, lRuntimeHelpersType.IsValueType);
+                    lDeclaringType.Module = library.MainModule;
+                    var lMethodInfoRuntimeHelpers = lRuntimeHelpersLocal as System.Reflection.MethodInfo;
+                    var lReturnTypeRuntimeHelpers = new TypeReference(string.Empty, lMethodInfoRuntimeHelpers.ReturnType.Name, lmscorlibRef, lMethodInfoRuntimeHelpers.ReturnType.IsValueType);
+                    lReturnTypeRuntimeHelpers.Module = library.MainModule;
+                    lRuntimeHelpers = new MethodReference(lRuntimeHelpersLocal.Name, lDeclaringType, lReturnTypeRuntimeHelpers, true, true, MethodCallingConvention.Default);
+                }
 
 				worker2.Emit( OpCodes.Ldc_I4, databytes.Count );
 				worker2.Emit( OpCodes.Newarr, systemByteTypeReference );
 				worker2.Emit( OpCodes.Dup );
 				worker2.Emit( OpCodes.Ldtoken, dataConstantField );
-				worker2.Emit( OpCodes.Call, library.MainModule.Import( typeof( System.Runtime.CompilerServices.RuntimeHelpers ).GetMethod( "InitializeArray" ) ) );
+                worker2.Emit(OpCodes.Call, lRuntimeHelpers/*library.MainModule.Import( typeof( System.Runtime.CompilerServices.RuntimeHelpers ).GetMethod("InitializeArray"))*/);
 				worker2.Emit( OpCodes.Stsfld, dataField );
 
 				worker2.Emit( OpCodes.Ldc_I4_0 );
