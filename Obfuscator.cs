@@ -1167,6 +1167,35 @@ namespace Obfuscar
 		}
 
 
+        private MethodReference CreateMethodReference(Type lType, System.Reflection.MethodInfo lMethodInfo, ModuleDefinition lModuleDefinition, AssemblyNameReference lmscorlib)
+        {
+            TypeReference lDeclaringType = CreateTypeReference(lType, lModuleDefinition, lmscorlib);
+            TypeReference lReturnType = CreateTypeReference(lMethodInfo.ReturnType, lModuleDefinition, lmscorlib);
+
+            MethodReference lMethod = new MethodReference(lMethodInfo.Name, lDeclaringType, lReturnType, (lMethodInfo.CallingConvention & System.Reflection.CallingConventions.HasThis) > 0, (lMethodInfo.CallingConvention & System.Reflection.CallingConventions.ExplicitThis) > 0, MethodCallingConvention.Default);
+            lModuleDefinition.MemberReferences.Add(lMethod);
+
+            System.Reflection.ParameterInfo[] lParameters = lMethodInfo.GetParameters();
+            if (lParameters != null)
+            {
+                foreach (System.Reflection.ParameterInfo lParam in lParameters)
+                {
+                    var lParameterType = CreateTypeReference(lParam.ParameterType, lModuleDefinition, lmscorlib);
+                    var lParamDefinition = new ParameterDefinition(lParam.Name, -1, Mono.Cecil.ParameterAttributes.None, lParameterType);
+                    lMethod.Parameters.Add(lParamDefinition);
+                }
+            }
+            return lMethod;
+        }
+
+        TypeReference CreateTypeReference(Type lType, ModuleDefinition lModuleDefinition, AssemblyNameReference lmscorlib)
+        {
+            TypeReference lTypeReference = new TypeReference(lType.Name, lType.Namespace, lmscorlib, lType.IsValueType);
+            lModuleDefinition.TypeReferences.Add(lTypeReference);
+
+            return lTypeReference;
+        }
+
 
 		public void HideStrings( )
 		{
@@ -1204,17 +1233,9 @@ namespace Obfuscar
                 }
                 else
                 {
-                    var lsystemValueTypeTypeReference = typeof(ValueType);
-                    systemValueTypeTypeReference = new TypeReference(lsystemValueTypeTypeReference.Name, lsystemValueTypeTypeReference.Namespace, lmscorlibRef, lsystemValueTypeTypeReference.IsValueType);
-                    library.MainModule.TypeReferences.Add(systemValueTypeTypeReference);
-
-                    var lsystemByteTypeReference = typeof(byte);
-                    systemByteTypeReference = new TypeReference(lsystemByteTypeReference.Name, lsystemByteTypeReference.Namespace, lmscorlibRef, lsystemByteTypeReference.IsValueType);
-                    library.MainModule.TypeReferences.Add(systemByteTypeReference);
-
-                    var lsystemIntTypeReference = typeof(Int32);
-                    systemIntTypeReference = new TypeReference(lsystemIntTypeReference.Name, lsystemIntTypeReference.Namespace, lmscorlibRef, lsystemIntTypeReference.IsValueType);
-                    library.MainModule.TypeReferences.Add(systemIntTypeReference);
+                    systemValueTypeTypeReference = CreateTypeReference(typeof(ValueType), library.MainModule, lmscorlibRef);
+                    systemByteTypeReference = CreateTypeReference(typeof(byte), library.MainModule, lmscorlibRef);
+                    systemIntTypeReference = CreateTypeReference(typeof(int), library.MainModule, lmscorlibRef);
                 }
 
 				// New static class with a method for each unique string we substitute.
@@ -1259,29 +1280,8 @@ namespace Obfuscar
                 else
                 {
                     var lEncodingType = typeof(System.Text.Encoding);
-                    
-                    var lEncodingUtf8Local = typeof(System.Text.Encoding).GetProperty("UTF8").GetGetMethod();
-                    var lDeclaringType = new TypeReference(lEncodingType.Name, lEncodingType.Namespace, lmscorlibRef, lEncodingType.IsValueType);
-                    library.MainModule.TypeReferences.Add(lDeclaringType);
-                    var lMethodInfoUtf8 = lEncodingUtf8Local as System.Reflection.MethodInfo;
-                    var lReturnTypeUtf8 = new TypeReference(lMethodInfoUtf8.ReturnType.Name, lMethodInfoUtf8.ReturnType.Namespace, lmscorlibRef, lMethodInfoUtf8.ReturnType.IsValueType);
-                    library.MainModule.TypeReferences.Add(lReturnTypeUtf8);
-                    lEncodingUtf8 = new MethodReference(lEncodingUtf8Local.Name, lDeclaringType, lReturnTypeUtf8, false, false, MethodCallingConvention.Default);
-                    
-                    var lEncodingGetStringLocal = typeof(System.Text.Encoding).GetMethod("GetString", new Type[] { typeof(byte[]), typeof(int), typeof(int) });
-                    var lMethodInfoGetString = lEncodingGetStringLocal as System.Reflection.MethodInfo;
-                    var lReturnTypeGetString = new TypeReference(lMethodInfoGetString.ReturnType.Name, lMethodInfoGetString.ReturnType.Namespace, lmscorlibRef, lMethodInfoGetString.ReturnType.IsValueType);
-                    library.MainModule.TypeReferences.Add(lReturnTypeGetString);
-                    lEncodingGetString = new MethodReference(lEncodingGetStringLocal.Name, lDeclaringType, lReturnTypeGetString, true, true, MethodCallingConvention.Default);
-
-                    System.Reflection.ParameterInfo[] lParameters = lEncodingGetStringLocal.GetParameters();
-                    foreach (System.Reflection.ParameterInfo lParam in lParameters)
-                    {
-                        var lParameterType = new TypeReference(lParam.ParameterType.Name, lParam.ParameterType.Namespace, lmscorlibRef, lParam.ParameterType.IsValueType);
-                        library.MainModule.TypeReferences.Add(lParameterType);
-                        var lParamDefinition = new ParameterDefinition(lParam.Name, -1, Mono.Cecil.ParameterAttributes.None, lParameterType);
-                        lEncodingGetString.Parameters.Add(lParamDefinition);
-                    }
+                    lEncodingUtf8 = CreateMethodReference(lEncodingType, lEncodingType.GetProperty("UTF8").GetGetMethod(), library.MainModule, lmscorlibRef);
+                    lEncodingGetString = CreateMethodReference(lEncodingType, lEncodingType.GetMethod("GetString", new Type[] { typeof(byte[]), typeof(int), typeof(int) }), library.MainModule, lmscorlibRef);
                 }
 
                 worker3.Emit(OpCodes.Call, lEncodingUtf8/*library.MainModule.Import( typeof( System.Text.Encoding ).GetProperty( "UTF8" ).GetGetMethod( ) )*/ );
@@ -1394,23 +1394,7 @@ namespace Obfuscar
                 else
                 {
                     var lRuntimeHelpersType = typeof(System.Runtime.CompilerServices.RuntimeHelpers);
-
-                    var lRuntimeHelpersLocal = typeof(System.Runtime.CompilerServices.RuntimeHelpers).GetMethod("InitializeArray");
-                    var lDeclaringType = new TypeReference(lRuntimeHelpersType.Name, lRuntimeHelpersType.Namespace, lmscorlibRef, lRuntimeHelpersType.IsValueType);
-                    library.MainModule.TypeReferences.Add(lDeclaringType);
-                    var lMethodInfoRuntimeHelpers = lRuntimeHelpersLocal as System.Reflection.MethodInfo;
-                    var lReturnTypeRuntimeHelpers = new TypeReference(lMethodInfoRuntimeHelpers.ReturnType.Name, lMethodInfoRuntimeHelpers.ReturnType.Namespace, lmscorlibRef, lMethodInfoRuntimeHelpers.ReturnType.IsValueType);
-                    library.MainModule.TypeReferences.Add(lReturnTypeRuntimeHelpers);
-                    lRuntimeHelpers = new MethodReference(lRuntimeHelpersLocal.Name, lDeclaringType, lReturnTypeRuntimeHelpers, false, false, MethodCallingConvention.Default);
-                    
-                    System.Reflection.ParameterInfo[] lParameters = lRuntimeHelpersLocal.GetParameters();
-                    foreach (System.Reflection.ParameterInfo lParam in lParameters)
-                    {
-                        var lParameterType = new TypeReference(lParam.ParameterType.Name, lParam.ParameterType.Namespace, lmscorlibRef, lParam.ParameterType.IsValueType);
-                        library.MainModule.TypeReferences.Add(lParameterType);
-                        var lParamDefinition = new ParameterDefinition(lParam.Name, -1, Mono.Cecil.ParameterAttributes.None, lParameterType);
-                        lRuntimeHelpers.Parameters.Add(lParamDefinition);
-                    }
+                    lRuntimeHelpers = CreateMethodReference(lRuntimeHelpersType, typeof(System.Runtime.CompilerServices.RuntimeHelpers).GetMethod("InitializeArray"), library.MainModule, lmscorlibRef);
                 }
 
 				worker2.Emit( OpCodes.Ldc_I4, databytes.Count );
