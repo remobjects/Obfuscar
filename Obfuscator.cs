@@ -1221,6 +1221,7 @@ namespace Obfuscar
                         lmscorlibRef = lRef;
                     }
                 }
+                lmscorlibRef = null;
 
                 TypeReference systemValueTypeTypeReference = null;
                 TypeReference systemByteTypeReference = null;
@@ -1373,6 +1374,7 @@ namespace Obfuscar
 				for ( int i = 0; i < databytes.Count; i++ )
 					databytes[i] = (byte) (databytes[i] ^ (byte)i ^ 0xAA);
 				dataConstantField.InitialValue = databytes.ToArray( );
+
 
 				// Add static constructor which initializes the dataField from the constant data field
 				MethodDefinition ctorMethodDefinition = new MethodDefinition( ".cctor", MethodAttributes.Static | MethodAttributes.Private | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName, systemVoidTypeReference );
