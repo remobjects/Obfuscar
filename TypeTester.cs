@@ -64,7 +64,7 @@ namespace Obfuscar
 
 		public bool Test( TypeKey type )
 		{
-			return Helper.CompareOptionalRegex(type.Fullname, name);
+			return Helper.CompareOptionalRegex(type.Fullname.Replace("/", "."), name); //nested classes contain "/"
 		}
 	}
 }
