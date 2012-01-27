@@ -93,8 +93,8 @@ namespace Obfuscar
 			cache.ExtraFolders.AddRange(project.ExtraPaths);
 
 			foreach ( AssemblyInfo info in project )
-			{
-			cache.ExtraFolders.Add(System.IO.Path.GetDirectoryName(info.Filename));
+            {
+                cache.ExtraFolders.Add(System.IO.Path.GetDirectoryName(info.Filename));
                 info.Definition.Resolver = cache;
 				foreach ( TypeDefinition type in info.Definition.MainModule.Types )
 				{

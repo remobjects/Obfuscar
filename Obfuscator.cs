@@ -125,6 +125,14 @@ namespace Obfuscar
 		{
 			string outPath = project.Settings.OutPath;
 
+            //copy excluded assemblies
+            foreach (AssemblyInfo copyInfo in project.CopyAssemblyList)
+            {
+                string outName = System.IO.Path.Combine( outPath,
+					System.IO.Path.GetFileName( copyInfo.Filename ) );
+                AssemblyFactory.SaveAssembly(copyInfo.Definition, outName);
+            }
+
 			// save the modified assemblies
 			foreach ( AssemblyInfo info in project )
 			{

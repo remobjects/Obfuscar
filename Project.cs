@@ -41,6 +41,14 @@ namespace Obfuscar
 	public class Project : IEnumerable<AssemblyInfo>
 	{
 		private readonly List<AssemblyInfo> assemblyList = new List<AssemblyInfo>( );
+        public List<AssemblyInfo> CopyAssemblyList
+        {
+            get
+            {
+                return copyAssemblyList;
+            }
+        }
+        private readonly List<AssemblyInfo> copyAssemblyList = new List<AssemblyInfo>();
 		private readonly Dictionary<string, AssemblyInfo> assemblyMap = new Dictionary<string, AssemblyInfo>( );
 
 		private readonly Variables vars = new Variables( );
@@ -155,6 +163,11 @@ namespace Obfuscar
 						}
 						case "Module":
 							AssemblyInfo info = AssemblyInfo.FromXml( project, reader, project.vars );
+                            if (info.Exclude)
+                            {
+                                project.copyAssemblyList.Add(info);
+                                break;
+                            }
                             Console.WriteLine("Processing assembly: " + info.Definition.Name.FullName);
 							project.assemblyList.Add( info );
 							project.assemblyMap[info.Name] = info;
@@ -232,8 +245,10 @@ namespace Obfuscar
 			}
 
 			// make each assembly's list of member refs
-			foreach ( AssemblyInfo info in assemblyList )
-				info.Init( );
+            foreach (AssemblyInfo info in assemblyList)
+            {
+                info.Init();
+            }
 
 			// build inheritance map
 			inheritMap = new InheritMap( this );
