@@ -56,6 +56,12 @@ namespace Obfuscar
 
 		private AssemblyDefinition definition;
 		private string name;
+        private bool exclude = false;
+        public bool Exclude
+        {
+            get { return exclude; }
+            set { exclude = value; }
+        }
 
 		bool initialized = false;
 
@@ -90,6 +96,12 @@ namespace Obfuscar
 			}
 			else
 				throw new InvalidOperationException( "Need valid file attribute." );
+
+            string isExcluded = Helper.GetAttribute(reader, "Exclude", vars);
+            if ((isExcluded.Length > 0) && (isExcluded.ToLowerInvariant() == "true"))
+            {
+                info.Exclude = true;
+            }
 
 			if ( !reader.IsEmptyElement )
 			{
@@ -431,6 +443,6 @@ namespace Obfuscar
 
 /*
 
-[assembly: AssemblyVersion("0.0.0.0")]
+[assembly: AssemblyVersion("4.0.0.142")]
 
 */

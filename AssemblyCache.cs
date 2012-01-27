@@ -231,7 +231,7 @@ namespace Obfuscar
         {
             this.m_directories = new List<String>();
             this.m_directories.Add(".");
-            this.m_directories.Add("bin");
+            this.m_directories.Add("bin"); 
         }
 
 
