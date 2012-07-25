@@ -275,6 +275,241 @@ namespace Obfuscar
 
 		public void WriteMap( ObfuscationMap map )
 		{
+            writer.WriteStartElement("mapping");
+            writer.WriteStartElement("renamedTypes");
+
+			foreach ( ObfuscatedClass classInfo in map.ClassMap.Values )
+			{
+				// print the ones we didn't skip first
+				if ( classInfo.Status == ObfuscationStatus.Renamed )
+					DumpClass( classInfo );
+			}
+            writer.WriteEndElement();
+            writer.WriteString("\r\n");
+
+            writer.WriteStartElement("skippedTypes");
+
+			foreach ( ObfuscatedClass classInfo in map.ClassMap.Values )
+			{
+				// now print the stuff we skipped
+				if ( classInfo.Status == ObfuscationStatus.Skipped )
+					DumpClass( classInfo );
+			}
+            writer.WriteEndElement();
+            writer.WriteString("\r\n");
+
+            writer.WriteStartElement("renamedResources");
+
+			foreach ( ObfuscatedThing info in map.Resources )
+			{
+                if (info.Status == ObfuscationStatus.Renamed)
+                {
+                    writer.WriteStartElement("renamedResource");
+                    writer.WriteAttributeString("oldName", info.Name);
+                    writer.WriteAttributeString("newName", info.StatusText);
+                    writer.WriteEndElement();
+                }
+			}
+
+            writer.WriteEndElement();
+            writer.WriteString("\r\n");
+
+            writer.WriteStartElement("skippedResources");
+
+			foreach ( ObfuscatedThing info in map.Resources )
+			{
+                if (info.Status == ObfuscationStatus.Skipped)
+                {
+                    writer.WriteStartElement("skippedResource");
+                    writer.WriteAttributeString("name", info.Name);
+                    writer.WriteAttributeString("reason", info.StatusText);
+                    writer.WriteEndElement();
+                }
+			}
+            writer.WriteEndElement();
+            writer.WriteString("\r\n");
+            writer.WriteEndElement();
+            writer.WriteString("\r\n");
+		}
+
+		private void DumpClass( ObfuscatedClass classInfo )
+		{
+			if ( classInfo.Status != ObfuscationStatus.Renamed )
+			{
+				Debug.Assert( classInfo.Status == ObfuscationStatus.Skipped,
+					"Status is expected to be either Renamed or Skipped." );
+                writer.WriteStartElement("skippedClass");
+                writer.WriteAttributeString("name", classInfo.Name);
+                writer.WriteAttributeString("reason", classInfo.StatusText);
+                writer.WriteEndElement();
+                writer.WriteString("\r\n");
+                return;
+			}
+            writer.WriteStartElement("renamedClass");
+            writer.WriteAttributeString("oldName", classInfo.Name);
+            writer.WriteAttributeString("newName", classInfo.StatusText);
+
+			int numRenamed = 0;
+			foreach ( KeyValuePair<MethodKey, ObfuscatedThing> method in classInfo.Methods )
+			{
+				if ( method.Value.Status == ObfuscationStatus.Renamed )
+				{
+					DumpMethod( method.Key, method.Value );
+					numRenamed++;
+				}
+			}
+
+
+
+			foreach ( KeyValuePair<MethodKey, ObfuscatedThing> method in classInfo.Methods )
+			{
+				if ( method.Value.Status == ObfuscationStatus.Skipped )
+					DumpMethod( method.Key, method.Value );
+			}
+
+
+			foreach ( KeyValuePair<FieldKey, ObfuscatedThing> field in classInfo.Fields )
+			{
+				if ( field.Value.Status == ObfuscationStatus.Renamed )
+				{
+					DumpField( writer, field.Key, field.Value );
+				}
+			}
+
+			//
+
+			foreach ( KeyValuePair<FieldKey, ObfuscatedThing> field in classInfo.Fields )
+			{
+				if ( field.Value.Status == ObfuscationStatus.Skipped )
+					DumpField( writer, field.Key, field.Value );
+			}
+
+
+			foreach ( KeyValuePair<PropertyKey, ObfuscatedThing> field in classInfo.Properties )
+			{
+				if ( field.Value.Status == ObfuscationStatus.Renamed )
+				{
+					DumpProperty( writer, field.Key, field.Value );
+				}
+			}
+
+
+			foreach ( KeyValuePair<PropertyKey, ObfuscatedThing> field in classInfo.Properties )
+			{
+				if ( field.Value.Status == ObfuscationStatus.Skipped )
+					DumpProperty( writer, field.Key, field.Value );
+			}
+
+
+			foreach ( KeyValuePair<EventKey, ObfuscatedThing> field in classInfo.Events )
+			{
+				if ( field.Value.Status == ObfuscationStatus.Renamed )
+				{
+					DumpEvent( writer, field.Key, field.Value );
+				}
+			}
+
+
+			foreach ( KeyValuePair<EventKey, ObfuscatedThing> field in classInfo.Events )
+			{
+				if ( field.Value.Status == ObfuscationStatus.Skipped )
+					DumpEvent( writer, field.Key, field.Value );
+			}
+
+            writer.WriteEndElement();
+            writer.WriteString("\r\n");
+		}
+
+		private void DumpMethod( MethodKey key, ObfuscatedThing info )
+		{
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("{0}(", info.Name );
+			for ( int i = 0; i < key.Count; i++ )
+			{
+				if ( i > 0 )
+					sb.Append( "," );
+
+                sb.Append(key.ParamTypes[i]);
+			}
+
+            sb.Append(")");
+
+            if (info.Status == ObfuscationStatus.Renamed)
+            {
+                writer.WriteStartElement("renamedMethod");
+                writer.WriteAttributeString("oldName", sb.ToString());
+                writer.WriteAttributeString("newName", info.StatusText);
+                writer.WriteEndElement();
+                writer.WriteString("\r\n");
+            } 
+            else
+            {
+                writer.WriteStartElement("skippedMethod");
+                writer.WriteAttributeString("name", sb.ToString());
+                writer.WriteAttributeString("reason", info.StatusText);
+                writer.WriteEndElement();
+                writer.WriteString("\r\n");
+            }
+		}
+
+		private void DumpField( XmlWriter writer, FieldKey key, ObfuscatedThing info )
+		{
+            if (info.Status == ObfuscationStatus.Renamed)
+            {
+                writer.WriteStartElement("renamedField");
+                writer.WriteAttributeString("oldName", info.Name);
+                writer.WriteAttributeString("newName", info.StatusText);
+                writer.WriteEndElement();
+                writer.WriteString("\r\n");
+            }
+            else
+            {
+                writer.WriteStartElement("skippedField");
+                writer.WriteAttributeString("name", info.Name);
+                writer.WriteAttributeString("reason", info.StatusText);
+                writer.WriteEndElement();
+                writer.WriteString("\r\n");
+            }
+		}
+
+		private void DumpProperty( XmlWriter writer, PropertyKey key, ObfuscatedThing info )
+		{
+            if (info.Status == ObfuscationStatus.Renamed)
+            {
+                writer.WriteStartElement("renamedProperty");
+                writer.WriteAttributeString("oldName", info.Name);
+                writer.WriteAttributeString("newName", info.StatusText);
+                writer.WriteEndElement();
+                writer.WriteString("\r\n");
+            }
+            else
+            {
+                writer.WriteStartElement("skippedProperty");
+                writer.WriteAttributeString("name", info.Name);
+                writer.WriteAttributeString("reason", info.StatusText);
+                writer.WriteEndElement();
+                writer.WriteString("\r\n");
+            }
+		}
+
+		private void DumpEvent( XmlWriter writer, EventKey key, ObfuscatedThing info )
+		{
+            if (info.Status == ObfuscationStatus.Renamed)
+            {
+                writer.WriteStartElement("renamedEvent");
+                writer.WriteAttributeString("oldName", info.Name);
+                writer.WriteAttributeString("newName", info.StatusText);
+                writer.WriteEndElement();
+                writer.WriteString("\r\n");
+            }
+            else
+            {
+                writer.WriteStartElement("skippedEvent");
+                writer.WriteAttributeString("name", info.Name);
+                writer.WriteAttributeString("reason", info.StatusText);
+                writer.WriteEndElement();
+                writer.WriteString("\r\n");
+            }
 		}
 
 		public void Dispose( )
