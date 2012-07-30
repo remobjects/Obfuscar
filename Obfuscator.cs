@@ -176,8 +176,9 @@ namespace Obfuscar
             if (!String.IsNullOrEmpty(project.Settings.LogFilePath))
                 logPath = project.Settings.LogFilePath;
 
-            if (!Directory.Exists(Path.GetDirectoryName(logPath)))
-                Directory.CreateDirectory(Path.GetDirectoryName(logPath));
+			string lPath = Path.GetDirectoryName(logPath);
+            if (!String.IsNullOrEmpty(lPath) && !Directory.Exists(lPath))
+                Directory.CreateDirectory(lPath);
 
 			using ( System.IO.TextWriter file = System.IO.File.CreateText( logPath ) )
 				SaveMapping( file );
