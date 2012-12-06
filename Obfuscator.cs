@@ -161,6 +161,7 @@ namespace Obfuscar
                     }
 				}
 			}
+            TypeNameCache.nameCache.Clear();
 		}
 
 		/// <summary>

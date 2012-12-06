@@ -32,7 +32,7 @@ namespace Obfuscar
 {
 	static class TypeNameCache
 	{
-		static Dictionary<TypeReference, string> nameCache = new Dictionary<TypeReference, string>( );
+		public static Dictionary<TypeReference, string> nameCache = new Dictionary<TypeReference, string>( );
 
 		/// <summary>
 		/// Recursively builds a type name.
@@ -83,17 +83,19 @@ namespace Obfuscar
 		/// </summary>
 		public static string GetTypeName( TypeReference type )
 		{
-			string name;
-			if ( !nameCache.TryGetValue( type, out name ) )
-			{
-				StringBuilder builder = new StringBuilder( );
-				BuildTypeName( builder, type );
-				name = builder.ToString( );
+            lock (nameCache)
+            {
+                string name;
+                if (!nameCache.TryGetValue(type, out name))
+                {
+                    StringBuilder builder = new StringBuilder();
+                    BuildTypeName(builder, type);
+                    name = builder.ToString();
 
-				nameCache[type] = name;
-			}
-
-			return name;
+                    nameCache[type] = name;
+                }
+                return name;
+            }
 		}
 	}
 }
