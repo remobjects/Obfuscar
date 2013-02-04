@@ -593,7 +593,7 @@ namespace Obfuscar
 				}
 				foreach (System.Collections.DictionaryEntry field in new System.Collections.ArrayList(customattribute.Fields))
 				{
-					if (customattribute.GetPropertyType((string)field.Key).FullName == "System.Type")
+					if ((customattribute.GetPropertyType((string)field.Key) != null) && (customattribute.GetPropertyType((string)field.Key).FullName == "System.Type"))
 						customattribute.Properties[field.Key] = GetObfuscatedTypeName((string)customattribute.Properties[field.Key], typeRenameMap);
 				}
 			}
