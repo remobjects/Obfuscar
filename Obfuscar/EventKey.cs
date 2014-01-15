@@ -21,11 +21,9 @@
 /// THE SOFTWARE.
 /// </copyright>
 #endregion
-
 using System;
 using System.Collections.Generic;
 using System.Text;
-
 using Mono.Cecil;
 using Mono.Cecil.Metadata;
 
@@ -36,95 +34,104 @@ namespace Obfuscar
 		readonly TypeKey typeKey;
 		readonly string type;
 		readonly string name;
-		readonly MethodAttributes addMethodAttributes;
+		readonly EventDefinition eventDefinition;
 
-		public EventKey( EventDefinition evt )
-			: this(new TypeKey(evt.DeclaringType), evt.EventType.FullName, evt.Name, evt.AddMethod != null ? evt.AddMethod.Attributes : 0)
+		public EventKey (EventDefinition evt)
+            : this (new TypeKey ((TypeDefinition)evt.DeclaringType), evt)
 		{
 		}
 
-		public EventKey( TypeKey typeKey, EventDefinition evt )
-			: this(typeKey, evt.EventType.FullName, evt.Name, evt.AddMethod != null ? evt.AddMethod.Attributes : 0)
+		public EventKey (TypeKey typeKey, EventDefinition evt)
+            : this (typeKey, evt.EventType.FullName, evt.Name, evt)
 		{
 		}
 
-		public EventKey( TypeKey typeKey, string type, string name, MethodAttributes addMethodAttributes)
+		public EventKey (TypeKey typeKey, string type, string name, EventDefinition eventDefinition)
 		{
 			this.typeKey = typeKey;
 			this.type = type;
 			this.name = name;
-			this.addMethodAttributes = addMethodAttributes;
+			this.eventDefinition = eventDefinition;
 		}
 
-		public TypeKey TypeKey
-		{
+		public TypeKey TypeKey {
 			get { return typeKey; }
 		}
 
-		public string Type
-		{
+		public string Type {
 			get { return type; }
 		}
 
-		public string Name
-		{
+		public string Name {
 			get { return name; }
 		}
 
-		public MethodAttributes AddMethodAttributes
-		{
-			get { return addMethodAttributes; }
+		public MethodAttributes AddMethodAttributes {
+			get { return eventDefinition.AddMethod != null ? eventDefinition.AddMethod.Attributes : 0; }
 		}
 
-		public virtual bool Matches( MemberReference member )
+		public TypeDefinition DeclaringType {
+			get { return (TypeDefinition)eventDefinition.DeclaringType; }
+		}
+
+		public virtual bool Matches (MemberReference member)
 		{
 			EventReference evtRef = member as EventReference;
-			if ( evtRef != null )
-			{
-				if ( typeKey.Matches( evtRef.DeclaringType ) )
+			if (evtRef != null) {
+				if (typeKey.Matches (evtRef.DeclaringType))
 					return type == evtRef.EventType.FullName && name == evtRef.Name;
 			}
 
 			return false;
 		}
 
-		public override bool Equals( object obj )
+		public override bool Equals (object obj)
 		{
 			EventKey key = obj as EventKey;
-			if ( key == null )
+			if (key == null)
 				return false;
 
 			return this == key;
 		}
 
-		public static bool operator ==( EventKey a, EventKey b )
+		public static bool operator == (EventKey a, EventKey b)
 		{
-			if ( (object) a == null )
-				return (object) b == null;
-			else if ( (object) b == null )
+			if ((object)a == null)
+				return (object)b == null;
+			else if ((object)b == null)
 				return false;
 			else
 				return a.typeKey == b.typeKey && a.type == b.type && a.name == b.name;
 		}
 
-		public static bool operator !=( EventKey a, EventKey b )
+		public static bool operator != (EventKey a, EventKey b)
 		{
-			if ( (object) a == null )
-				return (object) b != null;
-			else if ( (object) b == null )
+			if ((object)a == null)
+				return (object)b != null;
+			else if ((object)b == null)
 				return true;
 			else
 				return a.typeKey != b.typeKey || a.type != b.type || a.name != b.name;
 		}
 
-		public override int GetHashCode( )
+		public override int GetHashCode ()
 		{
-			return typeKey.GetHashCode( ) ^ type.GetHashCode( ) ^ name.GetHashCode( );
+			return typeKey.GetHashCode () ^ type.GetHashCode () ^ name.GetHashCode ();
 		}
 
-		public override string ToString( )
+		public override string ToString ()
 		{
-			return String.Format( "[{0}]{1} {2}::{3}", typeKey.Scope, type, typeKey.Fullname, name );
+			return String.Format ("[{0}]{1} {2}::{3}", typeKey.Scope, type, typeKey.Fullname, name);
+		}
+
+		internal bool ShouldSkip (bool keepPublicApi, bool hidePrivateApi)
+		{
+			if (typeKey.TypeDefinition.IsPublic &&
+			    (eventDefinition.AddMethod.IsPublic ||
+			    eventDefinition.RemoveMethod.IsPublic))
+				return keepPublicApi;
+
+			return !hidePrivateApi;
 		}
 	}
 }

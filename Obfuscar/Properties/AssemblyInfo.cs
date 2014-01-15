@@ -26,7 +26,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-//[assembly: InternalsVisibleTo( "ObfuscarTests" )]
+[assembly: InternalsVisibleTo( "ObfuscarTests" )]
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -35,8 +35,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription( "" )]
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "" )]
-[assembly: AssemblyProduct( "Obfuscar" )]
-[assembly: AssemblyCopyright( "Copyright © Ryan Williams 2007" )]
+[assembly: AssemblyCopyright( "Copyright © Ryan Williams 2007-2010" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 
@@ -47,14 +46,3 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid( "7965f23d-515c-4f93-a7a0-76a416ab54af" )]
-
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-[assembly: AssemblyVersion( "1.4.0" )]
-[assembly: AssemblyFileVersion( "1.4.0" )]
-[assembly: AssemblyKeyName("RemObjectsSoftware")]

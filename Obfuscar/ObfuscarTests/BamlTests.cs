@@ -21,31 +21,49 @@
 /// THE SOFTWARE.
 /// </copyright>
 #endregion
+
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Text;
+using System.CodeDom.Compiler;
 
-namespace Obfuscar
+using NUnit.Framework;
+using Mono.Cecil;
+using Obfuscar;
+
+namespace ObfuscarTests
 {
-	static class ListHelper
+	[TestFixture]
+	public class BamlTests
 	{
-		public static bool ListsEqual<T> (IList<T> a, IList<T> b)
+		[Test]
+		public void CheckCannotObfuscateSigned( )
 		{
-			if (a == null)
-				return b == null;
-			else if (b == null)
-				return false;
-			else if (a.Count != b.Count)
-				return false;
-			else {
-				for (int i = 0; i < a.Count; i++) {
-					if (!a [i].Equals (b [i]))
-						return false;
-				}
+			string xml = String.Format(
+				@"<?xml version='1.0'?>" +
+				@"<Obfuscator>" +
+				@"<Var name='InPath' value='{0}' />" +
+				@"<Var name='OutPath' value='{1}' />" +
+				@"<Module file='$(InPath)\WpfApplication1.dll' />" +
+				@"</Obfuscator>", TestHelper.InputPath, TestHelper.OutputPath );
 
-				// they aren't not equal
-				return true;
-			}
+			TestHelper.CleanInput( );
+
+			// build it with the keyfile option (embeds the public key, and signs the assembly)
+			File.Copy(Path.Combine(TestHelper.InputPath, @"..\WpfApplication1.dll"), Path.Combine(TestHelper.InputPath, "WpfApplication1.dll"));
+
+			var map = TestHelper.Obfuscate( xml ).Mapping;
+
+			AssemblyDefinition inAssmDef = AssemblyDefinition.ReadAssembly(
+				Path.Combine(TestHelper.InputPath, "WpfApplication1.dll"));
+
+			AssemblyDefinition outAssmDef = AssemblyDefinition.ReadAssembly(
+				Path.Combine(TestHelper.OutputPath, "WpfApplication1.dll"));
+
+			TypeDefinition classAType = inAssmDef.MainModule.GetType("WpfApplication1.MainWindow");
+			var obfuscated = map.GetClass(new TypeKey(classAType));
+			Assert.IsTrue(obfuscated.Status == ObfuscationStatus.Skipped);
 		}
 	}
 }

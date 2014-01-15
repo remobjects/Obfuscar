@@ -21,31 +21,29 @@
 /// THE SOFTWARE.
 /// </copyright>
 #endregion
+
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Obfuscar
+namespace TestClasses
 {
-	static class ListHelper
+	[Custom("test")]
+	public class ClassA
 	{
-		public static bool ListsEqual<T> (IList<T> a, IList<T> b)
+		[Custom("test")]
+		protected virtual void Method( bool param )
 		{
-			if (a == null)
-				return b == null;
-			else if (b == null)
-				return false;
-			else if (a.Count != b.Count)
-				return false;
-			else {
-				for (int i = 0; i < a.Count; i++) {
-					if (!a [i].Equals (b [i]))
-						return false;
-				}
-
-				// they aren't not equal
-				return true;
-			}
 		}
+	}
+
+	internal class CustomAttribute : Attribute
+	{
+		public CustomAttribute(string content)
+		{
+			Content = content;
+		}
+
+		public string Content { get; private set; }
 	}
 }

@@ -21,7 +21,6 @@
 /// THE SOFTWARE.
 /// </copyright>
 #endregion
-
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,90 +28,103 @@ using System.Xml;
 
 namespace Obfuscar
 {
-	public class Settings
+	class Settings
 	{
 		string inPath;
 		string outPath;
-        string logFilePath;
+		string logFilePath;
 		bool markedOnly;
 		bool renameProperties;
 		bool renameEvents;
+		bool keepPublicApi;
+		bool hidePrivateApi;
 		bool reuseNames;
-        bool useUnicodeNames;
+		bool useUnicodeNames;
+		bool useKoreanNames;
 		bool xmlMapping;
 		bool hideStrings;
-        bool renegerateDebugInfo;
+		bool renegerateDebugInfo;
+		string keyFile;
 
-		internal Settings( Variables vars )
+		public Settings (Variables vars)
 		{
-			inPath = vars.GetValue( "InPath", "." );
-			outPath = vars.GetValue( "OutPath", "." );
-            logFilePath = vars.GetValue( "LogFile", "" );
-			markedOnly = XmlConvert.ToBoolean( vars.GetValue( "MarkedOnly", "false" ) );
+			inPath = vars.GetValue ("InPath", ".");
+			outPath = vars.GetValue ("OutPath", ".");
+			logFilePath = vars.GetValue ("LogFile", "");
+			markedOnly = XmlConvert.ToBoolean (vars.GetValue ("MarkedOnly", "false"));
 
-			renameProperties = XmlConvert.ToBoolean( vars.GetValue( "RenameProperties", "true" ) );
-			renameEvents = XmlConvert.ToBoolean( vars.GetValue( "RenameEvents", "true" ) );
-			reuseNames = XmlConvert.ToBoolean( vars.GetValue( "ReuseNames", "true" ) );
-            useUnicodeNames = XmlConvert.ToBoolean(vars.GetValue("UseUnicodeNames", "false"));
-			hideStrings = XmlConvert.ToBoolean(vars.GetValue("HideStrings", "true"));
+			renameProperties = XmlConvert.ToBoolean (vars.GetValue ("RenameProperties", "true"));
+			renameEvents = XmlConvert.ToBoolean (vars.GetValue ("RenameEvents", "true"));
+			keepPublicApi = XmlConvert.ToBoolean (vars.GetValue ("KeepPublicApi", "false"));
+			hidePrivateApi = XmlConvert.ToBoolean (vars.GetValue ("HidePrivateApi", "true"));
+			reuseNames = XmlConvert.ToBoolean (vars.GetValue ("ReuseNames", "true"));
+			useUnicodeNames = XmlConvert.ToBoolean (vars.GetValue ("UseUnicodeNames", "false"));
+			useKoreanNames = XmlConvert.ToBoolean (vars.GetValue ("UseKoreanNames", "false"));
+			hideStrings = XmlConvert.ToBoolean (vars.GetValue ("HideStrings", "true"));
 
-			xmlMapping = XmlConvert.ToBoolean( vars.GetValue( "XmlMapping", "false" ) );
-            renegerateDebugInfo = XmlConvert.ToBoolean(vars.GetValue("RegenerateDebugInfo", "false") );
+			xmlMapping = XmlConvert.ToBoolean (vars.GetValue ("XmlMapping", "false"));
+			renegerateDebugInfo = XmlConvert.ToBoolean (vars.GetValue ("RegenerateDebugInfo", "false"));
+			keyFile = vars.GetValue ("KeyFile", null);
 		}
 
-        public bool RegenerateDebugInfo
-        {
-            get { return renegerateDebugInfo; }
-        }
+		public bool RegenerateDebugInfo {
+			get { return renegerateDebugInfo; }
+		}
 
-		public string InPath
-		{
+		public string InPath {
 			get { return inPath; }
 		}
 
-		public string OutPath
-		{
+		public string OutPath {
 			get { return outPath; }
 		}
 
-		public bool MarkedOnly
-		{
+		public bool MarkedOnly {
 			get { return markedOnly; }
 		}
 
-        public string LogFilePath
-        {
-            get { return logFilePath; }
-        }
+		public string LogFilePath {
+			get { return logFilePath; }
+		}
 
-		public bool RenameProperties
-		{
+		public bool RenameProperties {
 			get { return renameProperties; }
 		}
 
-		public bool RenameEvents
-		{
+		public bool RenameEvents {
 			get { return renameEvents; }
 		}
 
-		public bool ReuseNames
-		{
+		public bool KeepPublicApi {
+			get { return keepPublicApi; }			
+		}
+
+		public bool HidePrivateApi {
+			get { return hidePrivateApi; }
+		}
+
+		public bool ReuseNames {
 			get { return reuseNames; }
 		}
 
-		public bool HideStrings
-		{
+		public bool HideStrings {
 			get { return hideStrings; }
 		}
 
-		public bool XmlMapping
-		{
+		public bool XmlMapping {
 			get { return xmlMapping; }
 		}
 
-  		public bool UseUnicodeNames
-        {
-            get { return useUnicodeNames; }
-        }
+		public bool UseUnicodeNames {
+			get { return useUnicodeNames; }
+		}
+
+		public bool UseKoreanNames {
+			get { return useKoreanNames; }
+		}
+
+		public string KeyFile {
+			get { return keyFile; }
+		}
 	}
 }

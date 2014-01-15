@@ -21,83 +21,43 @@
 /// THE SOFTWARE.
 /// </copyright>
 #endregion
-
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Obfuscar
 {
-	public class Program
+	[SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1027:TabsMustNotBeUsed", Justification = "Reviewed. Suppression is OK here.")]
+	internal static class Program
 	{
-		static void ShowHelp( )
+		private static void ShowHelp ()
 		{
-			Console.WriteLine( "Usage:  obfuscar [projectfile]" );
+			Console.WriteLine ("Usage:  obfuscar [projectfile]");
 		}
 
-		public static int Main( string[] args )
+		[SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1027:TabsMustNotBeUsed", Justification = "Reviewed. Suppression is OK here.")]
+		private static int Main (string[] args)
 		{
-			if ( args.Length < 1 )
-			{
-				ShowHelp( );
+			if (args.Length < 1) {
+				ShowHelp ();
 				return 1;
 			}
 
 			int start = Environment.TickCount;
 
-			try
-			{
-				Console.Write( "Loading project (calling as EXE)..." );
-				Obfuscator obfuscator = new Obfuscator( args[0] );
-				Console.WriteLine( "Done." );
+			try {
+				Console.Write ("Loading project...");
+				Obfuscator obfuscator = new Obfuscator (args [0]);
+				Console.WriteLine ("Done.");
 
-				Console.Write( "Renaming:  fields..." );
-				obfuscator.RenameFields( );
-
-				Console.Write( "parameters..." );
-				obfuscator.RenameParams( );
-
-				Console.Write( "properties..." );
-				obfuscator.RenameProperties( );
-
-				Console.Write( "events..." );
-				obfuscator.RenameEvents( );
-
-				Console.Write( "methods..." );
-				obfuscator.RenameMethods( );
-
-				Console.Write( "types..." );
-				obfuscator.RenameTypes( );
-
-				if (obfuscator.Project.Settings.HideStrings)
-				{
-					Console.WriteLine("hiding strings...");
-					obfuscator.HideStrings();
-				}
-
-				Console.WriteLine( "Done." );
-
-				Console.Write( "Saving assemblies..." );
-				obfuscator.SaveAssemblies( );
-				Console.WriteLine( "Done." );
-
-				Console.Write( "Writing log file..." );
-				obfuscator.SaveMapping( );
-				Console.WriteLine( "Done." );
-
-				Console.WriteLine( "Completed, {0:f2} secs.", ( Environment.TickCount - start ) / 1000.0 );
-			}
-			catch ( ApplicationException e )
-			{
-				Console.WriteLine( );
-				Console.WriteLine( "An error occurred during processing:" );
-				Console.WriteLine( e.Message );
-				return 1;
-			}
-			catch(Exception e) {
+				obfuscator.RunRules ();
+				
+				Console.WriteLine ("Completed, {0:f2} secs.", (Environment.TickCount - start) / 1000.0);
+			} catch (ApplicationException e) {
 				Console.WriteLine ();
-				Console.WriteLine ("A fatal error occurred during processing:");
-				Console.WriteLine (e.ToString ());
+				Console.Error.WriteLine ("An error occurred during processing:");
+				Console.Error.WriteLine (e.Message);
+				if (e.InnerException != null)
+					Console.Error.WriteLine (e.InnerException.Message);
 				return 1;
 			}
 

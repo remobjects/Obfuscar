@@ -21,13 +21,8 @@
 /// THE SOFTWARE.
 /// </copyright>
 #endregion
-
 using System;
-using System.Collections.Generic;
-using System.Text;
-
 using Mono.Cecil;
-using Mono.Cecil.Metadata;
 
 namespace Obfuscar
 {
@@ -36,91 +31,97 @@ namespace Obfuscar
 		readonly TypeKey typeKey;
 		readonly string type;
 		readonly string name;
-		readonly FieldAttributes fieldAttributes;
+		readonly FieldDefinition fieldDefinition;
 
-		public FieldKey( FieldDefinition field )
-			: this( new TypeKey( field.DeclaringType ), field.FieldType.FullName, field.Name, field.Attributes )
+		public FieldKey (FieldDefinition field)
+			: this (new TypeKey ((TypeDefinition)field.DeclaringType), field.FieldType.FullName, field.Name, field)
 		{
-			fieldAttributes = field.Attributes;
 		}
 
-		public FieldKey(TypeKey typeKey, string type, string name, FieldAttributes fieldAttributes)
+		public FieldKey (TypeKey typeKey, string type, string name, FieldDefinition fieldDefinition)
 		{
 			this.typeKey = typeKey;
 			this.type = type;
 			this.name = name;
-			this.fieldAttributes = fieldAttributes;
+			this.fieldDefinition = fieldDefinition;
 		}
 
-		public FieldAttributes FieldAttributes
-		{
-			get { return fieldAttributes; }
+		public FieldAttributes FieldAttributes {
+			get { return fieldDefinition.Attributes; }
 		}
 
-		public TypeKey TypeKey
-		{
+		public TypeDefinition DeclaringType {
+			get { return (TypeDefinition)fieldDefinition.DeclaringType; }
+		}
+
+		public TypeKey TypeKey {
 			get { return typeKey; }
 		}
 
-		public string Type
-		{
+		public string Type {
 			get { return type; }
 		}
 
-		public string Name
-		{
+		public string Name {
 			get { return name; }
 		}
 
-		public virtual bool Matches( MemberReference member )
+		public virtual bool Matches (MemberReference member)
 		{
 			FieldReference fieldRef = member as FieldReference;
-			if ( fieldRef != null )
-			{
-				if ( typeKey.Matches( fieldRef.DeclaringType ) )
+			if (fieldRef != null) {
+				if (typeKey.Matches (fieldRef.DeclaringType))
 					return type == fieldRef.FieldType.FullName && name == fieldRef.Name;
 			}
 
 			return false;
 		}
 
-		public override bool Equals( object obj )
+		public override bool Equals (object obj)
 		{
 			FieldKey key = obj as FieldKey;
-			if ( key == null )
+			if (key == null)
 				return false;
 
 			return this == key;
 		}
 
-		public static bool operator ==( FieldKey a, FieldKey b )
+		public static bool operator == (FieldKey a, FieldKey b)
 		{
-			if ( (object) a == null )
-				return (object) b == null;
-			else if ( (object) b == null )
+			if ((object)a == null)
+				return (object)b == null;
+			else if ((object)b == null)
 				return false;
 			else
 				return a.typeKey == b.typeKey && a.type == b.type && a.name == b.name;
 		}
 
-		public static bool operator !=( FieldKey a, FieldKey b )
+		public static bool operator != (FieldKey a, FieldKey b)
 		{
-			if ( (object) a == null )
-				return (object) b != null;
-			else if ( (object) b == null )
+			if ((object)a == null)
+				return (object)b != null;
+			else if ((object)b == null)
 				return true;
 			else
 				return a.typeKey != b.typeKey || a.type != b.type || a.name != b.name;
 		}
 
-		public override int GetHashCode( )
+		public override int GetHashCode ()
 		{
-			return typeKey.GetHashCode( ) ^ type.GetHashCode( ) ^ name.GetHashCode( );
+			return typeKey.GetHashCode () ^ type.GetHashCode () ^ name.GetHashCode ();
 		}
 
-		public override string ToString( )
+		public override string ToString ()
 		{
-			return String.Format( "[{0}]{1} {2}::{3}", typeKey.Scope, type, typeKey.Fullname, name );
+			return String.Format ("[{0}]{1} {2}::{3}", typeKey.Scope, type, typeKey.Fullname, name);
+		}
+
+		internal bool ShouldSkip (bool keepPublicApi, bool hidePrivateApi)
+		{
+			if (typeKey.TypeDefinition.IsPublic && fieldDefinition.IsPublic)
+				return keepPublicApi;
+
+			return !hidePrivateApi;
 		}
 	}
 }

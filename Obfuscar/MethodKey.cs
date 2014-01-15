@@ -21,11 +21,9 @@
 /// THE SOFTWARE.
 /// </copyright>
 #endregion
-
 using System;
 using System.Collections.Generic;
 using System.Text;
-
 using Mono.Cecil;
 using Mono.Cecil.Metadata;
 
@@ -35,111 +33,106 @@ namespace Obfuscar
 	{
 		readonly TypeKey typeKey;
 		readonly int hashCode;
-		readonly MethodAttributes methodAttributes;
+		readonly MethodDefinition methodDefinition;
 
-		public MethodKey( MethodReference method )
-			: base( method )
+		public MethodKey (MethodDefinition method) : this (new TypeKey ((TypeDefinition)method.DeclaringType), method)
 		{
-			this.typeKey = new TypeKey( method.DeclaringType );
-
-			hashCode = CalcHashCode( );
 		}
 
-		public MethodKey( TypeKey typeKey, string name, string[] paramTypes, MethodAttributes methodAttributes )
-			: base( name, paramTypes )
+		public MethodKey (TypeKey typeKey, MethodDefinition method)
+			: base (method)
 		{
 			this.typeKey = typeKey;
-			this.methodAttributes = methodAttributes;
+			this.methodDefinition = method;
 
-			hashCode = CalcHashCode( );
+			hashCode = CalcHashCode ();
 		}
 
-		public MethodKey( TypeKey typeKey, MethodDefinition method )
-			: base( method )
+		private int CalcHashCode ()
 		{
-			this.typeKey = typeKey;
-
-			hashCode = CalcHashCode( );
-
-			methodAttributes = method.Attributes;
+			return typeKey.GetHashCode () ^ base.GetHashCode ();
 		}
 
-		private int CalcHashCode( )
-		{
-			return typeKey.GetHashCode( ) ^ base.GetHashCode( );
+		public MethodAttributes MethodAttributes {
+			get { return methodDefinition.Attributes; }
 		}
 
-		public MethodAttributes MethodAttributes
-		{
-			get { return methodAttributes; }
+		public TypeDefinition DeclaringType {
+			get { return (TypeDefinition)methodDefinition.DeclaringType; }
 		}
 
-		public TypeKey TypeKey
-		{
+		public TypeKey TypeKey {
 			get { return typeKey; }
 		}
 
-		public override bool Matches( MemberReference member )
+		public override bool Matches (MemberReference member)
 		{
 			MethodReference methodRef = member as MethodReference;
-			if ( methodRef != null )
-			{
-				if ( typeKey.Matches( methodRef.DeclaringType ) )
-					return base.Matches( member );
+			if (methodRef != null) {
+				if (typeKey.Matches (methodRef.DeclaringType))
+					return base.Matches (member);
 			}
 
 			return false;
 		}
 
-		public bool Equals( MethodKey other )
+		public bool Equals (MethodKey other)
 		{
 			return other != null &&
-				hashCode == other.hashCode && 
-				( typeKey == null ? other.typeKey == null : typeKey == other.typeKey ) &&
-				Equals( (NameParamSig) other );
+			hashCode == other.hashCode &&
+			(typeKey == null ? other.typeKey == null : typeKey == other.typeKey) &&
+			Equals ((NameParamSig)other);
 		}
 
-		public override bool Equals( object obj )
+		public override bool Equals (object obj)
 		{
-			return obj is MethodKey ? Equals( (MethodKey) obj ) : false;
+			return obj is MethodKey ? Equals ((MethodKey)obj) : false;
 		}
 
-		public static bool operator ==( MethodKey a, MethodKey b )
+		public static bool operator == (MethodKey a, MethodKey b)
 		{
-			if ( (object) a == null )
-				return (object) b == null;
-			else if ( (object) b == null )
+			if ((object)a == null)
+				return (object)b == null;
+			else if ((object)b == null)
 				return false;
 			else
-				return a.Equals( b );
+				return a.Equals (b);
 		}
 
-		public static bool operator !=( MethodKey a, MethodKey b )
+		public static bool operator != (MethodKey a, MethodKey b)
 		{
-			if ( (object) a == null )
-				return (object) b != null;
-			else if ( (object) b == null )
+			if ((object)a == null)
+				return (object)b != null;
+			else if ((object)b == null)
 				return true;
 			else
-				return !a.Equals( b );
+				return !a.Equals (b);
 		}
 
-		public override int GetHashCode( )
+		public override int GetHashCode ()
 		{
 			return hashCode;
 		}
 
-		public override string ToString( )
+		public override string ToString ()
 		{
-			return String.Format( "{0}::{1}", typeKey, base.ToString( ) );
+			return String.Format ("{0}::{1}", typeKey, base.ToString ());
 		}
 
-		public int CompareTo( MethodKey other )
+		public int CompareTo (MethodKey other)
 		{
-			int cmp = CompareTo( (NameParamSig) other );
-			if ( cmp == 0 )
-				cmp = typeKey.CompareTo( other.typeKey );
+			int cmp = CompareTo ((NameParamSig)other);
+			if (cmp == 0)
+				cmp = typeKey.CompareTo (other.typeKey);
 			return cmp;
+		}
+
+		internal bool ShouldSkip (bool keepPublicApi, bool hidePrivateApi)
+		{
+			if (typeKey.TypeDefinition.IsPublic && methodDefinition.IsPublic)
+				return keepPublicApi;
+
+			return !hidePrivateApi;
 		}
 	}
 }

@@ -21,7 +21,6 @@
 /// THE SOFTWARE.
 /// </copyright>
 #endregion
-
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -37,29 +36,31 @@ namespace Obfuscar
 		private readonly Regex nameRx;
 		private readonly string type;
 		private readonly string attrib;
+		private readonly string typeAttrib;
 
-		public EventTester( string name, string type, string attrib )
+		public EventTester (string name, string type, string attrib, string typeAttrib)
 		{
 			this.name = name;
 			this.type = type;
 			this.attrib = attrib;
+			this.typeAttrib = typeAttrib;
 		}
 
-		public EventTester( Regex nameRx, string type, string attrib )
+		public EventTester (Regex nameRx, string type, string attrib, string typeAttrib)
 		{
 			this.nameRx = nameRx;
 			this.type = type;
 			this.attrib = attrib;
+			this.typeAttrib = typeAttrib;
 		}
 
-		public bool Test( EventKey evt )
+		public bool Test (EventKey evt, InheritMap map)
 		{
-			if ( Helper.CompareOptionalRegex(evt.TypeKey.Fullname, type) && MethodTester.CheckMethodVisibility(attrib, evt.AddMethodAttributes))
-			{
-				if ( name != null )
-					return Helper.CompareOptionalRegex(evt.Name, name);
+			if (Helper.CompareOptionalRegex (evt.TypeKey.Fullname, type) && MethodTester.CheckMemberVisibility (attrib, typeAttrib, evt.AddMethodAttributes, evt.DeclaringType)) {
+				if (name != null)
+					return Helper.CompareOptionalRegex (evt.Name, name);
 				else
-					return nameRx.IsMatch( evt.Name );
+					return nameRx.IsMatch (evt.Name);
 			}
 
 			return false;
