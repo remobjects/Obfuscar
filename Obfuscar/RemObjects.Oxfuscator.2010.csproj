@@ -171,7 +171,6 @@
     <Compile Include="ParamSig.cs" />
     <Compile Include="MethodKey.cs" />
     <Compile Include="Obfuscator.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
