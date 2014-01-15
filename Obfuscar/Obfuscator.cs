@@ -45,6 +45,12 @@ namespace Obfuscar
 	[SuppressMessage ("StyleCop.CSharp.SpacingRules", "SA1027:TabsMustNotBeUsed", Justification = "Reviewed. Suppression is OK here.")]
 	public class Obfuscator
 	{
+	
+		public bool ShouldHideStrings()
+		{
+			return Project.Settings.HideStrings;
+		}
+
 		public bool hideStrings {
 			get { return project.Settings.HideStrings; }
 		}
