@@ -82,7 +82,8 @@ namespace Obfuscar
 						}
 					}
 				}
-                assmDef = resolver.Resolve(name);
+                if (assmDef == null)
+                    assmDef = resolver.Resolve(name);
                 if (assmDef != null)
                     cache[name.FullName] = assmDef;
 			}
