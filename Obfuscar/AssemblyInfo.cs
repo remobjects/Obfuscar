@@ -343,7 +343,11 @@ namespace Obfuscar
 			this.filename = filename;
 
 			try {
-                definition = AssemblyDefinition.ReadAssembly(filename, new ReaderParameters { AssemblyResolver = project.Cache });
+                definition = AssemblyDefinition.ReadAssembly(filename, new ReaderParameters { 
+                    ReadingMode = Mono.Cecil.ReadingMode.Immediate,
+                    ReadSymbols = System.IO.File.Exists(System.IO.Path.ChangeExtension(filename, "pdb")),
+                    AssemblyResolver = project.Cache 
+                });
                 project.Cache.Register(definition);
 				name = definition.Name.Name;
 			} catch (System.IO.IOException e) {
