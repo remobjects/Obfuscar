@@ -56,18 +56,23 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Mono.Cecil, Version=0.6.9.0, Culture=neutral, PublicKeyToken=3df3cad1b7aa5098, processorArchitecture=MSIL">
+    <Reference Include="Mono.Cecil">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Bin\Oxfuscator\\Mono\Mono.Cecil.dll</HintPath>
+      <HintPath>..\..\..\..\Bin\Oxfuscator\\Mono\Mono.Cecil.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+    <Reference Include="Mono.Cecil.Pdb">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Bin\Oxfuscator\Mono\Mono.Security.dll</HintPath>
+      <HintPath>..\..\..\..\Bin\Oxfuscator\\Mono\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Security">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Bin\Oxfuscator\Mono\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
