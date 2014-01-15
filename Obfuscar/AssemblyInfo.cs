@@ -405,7 +405,7 @@ namespace Obfuscar
 
 		private bool ShouldSkip (string ns, InheritMap map)
 		{
-			return skipNamespaces.IsMatch (ns, map);
+            return skipNamespaces.IsMatch (ns, map);
 		}
 
 		public bool ShouldSkip (TypeKey type, TypeSkipFlags flag, InheritMap map, bool hidePrivateApi)
@@ -430,9 +430,9 @@ namespace Obfuscar
 				return true;
 
 			if (ShouldSkip (type.Namespace, map)) {
-				if (type.TypeDefinition.IsPublic) {
-					return keepPublicApi;
-				}
+				//if (type.TypeDefinition.IsPublic) {
+				//	return keepPublicApi;
+				//}
 
 				if (!hidePrivateApi) {
 					return true;
