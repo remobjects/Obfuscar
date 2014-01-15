@@ -82,6 +82,9 @@ namespace Obfuscar
 						}
 					}
 				}
+                assmDef = resolver.Resolve(name);
+                if (assmDef != null)
+                    cache[name.FullName] = assmDef;
 			}
 
 			return assmDef;
@@ -168,7 +171,12 @@ namespace Obfuscar
 		}
 
 		#endregion
-	}
+
+        internal void Register(AssemblyDefinition definition)
+        {
+            cache[definition.FullName] = definition;
+        }
+    }
 
 	public delegate AssemblyDefinition AssemblyResolveEventHandler (object sender, AssemblyNameReference reference);
 

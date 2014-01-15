@@ -343,7 +343,8 @@ namespace Obfuscar
 			this.filename = filename;
 
 			try {
-				definition = AssemblyDefinition.ReadAssembly (filename);
+                definition = AssemblyDefinition.ReadAssembly(filename, new ReaderParameters { AssemblyResolver = project.Cache });
+                project.Cache.Register(definition);
 				name = definition.Name.Name;
 			} catch (System.IO.IOException e) {
 				throw new ApplicationException ("Unable to find assembly:  " + filename, e);
