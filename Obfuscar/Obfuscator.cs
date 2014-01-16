@@ -947,7 +947,7 @@ namespace Obfuscar
 					}
 
 					TypeKey typeKey = new TypeKey (type);
-
+                    
 					Dictionary<ParamSig, NameGroup> sigNames = GetSigNames (baseSigNames, typeKey);
 
 					// first pass.  mark grouped virtual methods to be renamed, and mark some things
@@ -1146,10 +1146,18 @@ namespace Obfuscar
 				groupName = method.Name;
 				@group.Name = groupName;
 
-				// set up methods to be renamed
-				foreach (MethodKey m in @group.Methods)
-					map.UpdateMethod (m, ObfuscationStatus.Skipped, skipRename);
+                // set up methods to be renamed
+                foreach (MethodKey m in @group.Methods)
+                {
+                    var o = map.GetMethod(m);
+                    // It could be we have previous entries that were
+                    // already renamed, we have to undo that now.
+                    if (o.Status != ObfuscationStatus.Skipped) 
+                        RenameMethod(info, m, m.MethodDefinition, groupName);
 
+                    map.UpdateMethod(m, ObfuscationStatus.Skipped, skipRename);
+                }
+				
 				// make sure the classes' name groups are updated
 				for (int i = 0; i < nameGroups.Length; i++)
 					nameGroups [i].Add (groupName);

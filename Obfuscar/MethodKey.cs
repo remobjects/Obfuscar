@@ -48,6 +48,10 @@ namespace Obfuscar
 			hashCode = CalcHashCode ();
 		}
 
+        public MethodDefinition MethodDefinition {
+            get { return methodDefinition; }
+        }
+
 		private int CalcHashCode ()
 		{
 			return typeKey.GetHashCode () ^ base.GetHashCode ();
