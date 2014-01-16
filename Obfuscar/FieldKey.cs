@@ -121,7 +121,7 @@ namespace Obfuscar
 			if (typeKey.TypeDefinition.IsPublic && fieldDefinition.IsPublic)
 				return keepPublicApi;
 
-			return !hidePrivateApi;
+            return true;
 		}
 	}
 }
