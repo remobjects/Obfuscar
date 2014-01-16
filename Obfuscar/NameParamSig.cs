@@ -35,7 +35,7 @@ namespace Obfuscar
 	/// </summary>
 	class NameParamSig : ParamSig, IComparable<NameParamSig>
 	{
-		readonly string name;
+		string name;
 		readonly int hashCode;
 
 		public NameParamSig (string name, string[] paramTypes)
@@ -69,6 +69,7 @@ namespace Obfuscar
 
 		public string Name {
 			get { return name; }
+            set { name = value; }
 		}
 
 		public virtual bool Matches (MemberReference member)

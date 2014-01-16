@@ -1152,8 +1152,27 @@ namespace Obfuscar
                     var o = map.GetMethod(m);
                     // It could be we have previous entries that were
                     // already renamed, we have to undo that now.
-                    if (o.Status != ObfuscationStatus.Skipped) 
-                        RenameMethod(info, m, m.MethodDefinition, groupName);
+                    if (o.Status == ObfuscationStatus.Renamed || o.Status == ObfuscationStatus.WillRename)
+                    {
+                        var newKey = new MethodKey(m.MethodDefinition);
+                        newKey.Name = o.StatusText;
+                        if (groupName == "LoadMemberAspects") Debugger.Break();
+                        foreach (AssemblyInfo newInfo in project)
+                        {
+                            for (int j = 0; j < newInfo.UnrenamedReferences.Count;j ++) {
+                                var member = newInfo.UnrenamedReferences[j];
+                                if (newKey.Matches(member)) {
+                                    var generic = member as GenericInstanceMethod;
+							        if (generic == null) {
+								        member.Name = groupName;
+							        } else {
+                                        generic.ElementMethod.Name = groupName;
+							        }
+                                }
+                            }
+                        }
+                        m.MethodDefinition.Name = groupName;
+                    }
 
                     map.UpdateMethod(m, ObfuscationStatus.Skipped, skipRename);
                 }
@@ -1252,10 +1271,11 @@ namespace Obfuscar
 								generic.ElementMethod.Name = newName;
 							}
 
-							reference.UnrenamedReferences.RemoveAt (i);
+                            // Do not remove because something can undo this later
+							//reference.UnrenamedReferences.RemoveAt (i);
 
 							// since we removed one, continue without the increment
-							continue;
+							//continue;
 						}
 					}
 
