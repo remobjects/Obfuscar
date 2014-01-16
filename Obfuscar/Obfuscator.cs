@@ -1156,7 +1156,7 @@ namespace Obfuscar
                     {
                         var newKey = new MethodKey(m.MethodDefinition);
                         newKey.Name = o.StatusText;
-                        if (groupName == "LoadMemberAspects") Debugger.Break();
+                        
                         foreach (AssemblyInfo newInfo in project)
                         {
                             for (int j = 0; j < newInfo.UnrenamedReferences.Count;j ++) {
