@@ -1315,33 +1315,34 @@ namespace Obfuscar
 				TypeReference systemIntTypeReference = library.MainModule.Import (typeof(int));
 
 				// New static class with a method for each unique string we substitute.
-				TypeDefinition newtype = new TypeDefinition ("<PrivateImplementationDetails>{" + Guid.NewGuid ().ToString ().ToUpper () + "}", null, TypeAttributes.BeforeFieldInit | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.BeforeFieldInit, systemObjectTypeReference);
+				TypeDefinition newtype = new TypeDefinition ("", "<PrivateImplementationDetails>{" + Guid.NewGuid ().ToString ().ToUpper () + "}", TypeAttributes.BeforeFieldInit | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.BeforeFieldInit, systemObjectTypeReference);
 
 				// Array of bytes receiving the obfuscated strings in UTF8 format.
 				List<byte> databytes = new List<byte> ();
 
 				// Add struct for constant byte array data
-				TypeDefinition structType = new TypeDefinition ("\0", "", TypeAttributes.ExplicitLayout | TypeAttributes.AnsiClass | TypeAttributes.Sealed | TypeAttributes.NestedPrivate, systemValueTypeTypeReference);
+				TypeDefinition structType = new TypeDefinition ("", "_", TypeAttributes.ExplicitLayout | TypeAttributes.AnsiClass | TypeAttributes.Sealed | TypeAttributes.NestedPrivate, systemValueTypeTypeReference);
 				structType.PackingSize = 1;
 				newtype.NestedTypes.Add (structType);
 
 				// Add field with constant string data
-				FieldDefinition dataConstantField = new FieldDefinition ("\0", FieldAttributes.HasFieldRVA | FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly, structType);
+				FieldDefinition dataConstantField = new FieldDefinition ("a", FieldAttributes.HasFieldRVA | FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly, structType);
 				newtype.Fields.Add (dataConstantField);
 
 				// Add data field where constructor copies the data to
-				FieldDefinition dataField = new FieldDefinition ("\0\0", FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly, new ArrayType (systemByteTypeReference));
+				FieldDefinition dataField = new FieldDefinition ("b", FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly, new ArrayType (systemByteTypeReference));
 				newtype.Fields.Add (dataField);
 
 				// Add string array of deobfuscated strings
-				FieldDefinition stringArrayField = new FieldDefinition ("\0\0\0", FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly, new ArrayType (systemStringTypeReference));
+				FieldDefinition stringArrayField = new FieldDefinition ("c", FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.Assembly, new ArrayType (systemStringTypeReference));
 				newtype.Fields.Add (stringArrayField);
 
 				// Add method to extract a string from the byte array. It is called by the indiviual string getter methods we add later to the class.
-				MethodDefinition stringGetterMethodDefinition = new MethodDefinition ("\0", MethodAttributes.Static | MethodAttributes.Private | MethodAttributes.HideBySig, systemStringTypeReference);
+				MethodDefinition stringGetterMethodDefinition = new MethodDefinition ("d", MethodAttributes.Static | MethodAttributes.Private | MethodAttributes.HideBySig, systemStringTypeReference);
 				stringGetterMethodDefinition.Parameters.Add (new ParameterDefinition (systemIntTypeReference));
 				stringGetterMethodDefinition.Parameters.Add (new ParameterDefinition (systemIntTypeReference));
 				stringGetterMethodDefinition.Parameters.Add (new ParameterDefinition (systemIntTypeReference));
+				stringGetterMethodDefinition.Body.InitLocals = true;
 				stringGetterMethodDefinition.Body.Variables.Add (new VariableDefinition (systemStringTypeReference));
 				ILProcessor worker3 = stringGetterMethodDefinition.Body.GetILProcessor ();
 
@@ -1438,6 +1439,7 @@ namespace Obfuscar
 				MethodDefinition ctorMethodDefinition = new MethodDefinition (".cctor", MethodAttributes.Static | MethodAttributes.Private | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName, systemVoidTypeReference);
 				newtype.Methods.Add (ctorMethodDefinition);
 				ctorMethodDefinition.Body = new MethodBody (ctorMethodDefinition);
+				ctorMethodDefinition.Body.InitLocals = true;
 				ctorMethodDefinition.Body.Variables.Add (new VariableDefinition (systemIntTypeReference));
 
 				ILProcessor worker2 = ctorMethodDefinition.Body.GetILProcessor ();
