@@ -44,7 +44,11 @@ namespace Obfuscar
 		public AssemblyCache (Project project)
 		{
 			this.project = project;
-		}
+            if (project != null)
+            {
+                extraFolders.AddRange(project.ExtraPaths);
+            }
+        }
 
 		private AssemblyDefinition SelfResolve (AssemblyNameReference name)
 		{
